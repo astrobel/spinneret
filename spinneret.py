@@ -24,9 +24,14 @@ class Spinner:
     def ls_one_term(self, freq, ps):
         self.freq1 = freq
         self.ps1 = ps
-        self.p_ls1 = 1/freq[np.argmax(ps)]
+        argmax1 = np.argmax(ps)
+        self.p_ls1a = 1/freq[argmax1]
+        argmax2 = np.argmax(np.delete(ps, argmax1))
+        self.p_ls1b = 1/np.delete(freq, argmax1)[argmax2]
+        argmax3 = np.argmax(np.delete(ps, [argmax1, argmax2]))
+        self.p_ls1c = 1/np.delete(freq, [argmax1, argmax2])[argmax3]
 
-        self.time_ls1fold, self.flux_ls1fold, self.orig_time_ls1fold, self.model_ls1 = model(self.time, self.flux, self.p_ls1)
+        self.time_ls1fold, self.flux_ls1fold, self.orig_time_ls1fold, self.model_ls1 = model(self.time, self.flux, self.p_ls1a)
         self.rms_ls1 = rms(self.model_ls1, self.flux_ls1fold)
         self.mad_ls1 = mad(self.model_ls1, self.flux_ls1fold)
         self.rvar_ls1 = rvar(self.flux_ls1fold)
@@ -34,9 +39,13 @@ class Spinner:
     def ls_two_term(self, freq, ps):
         self.freq2 = freq
         self.ps2 = ps
-        self.p_ls2 = 1/freq[np.argmax(ps)]
+        self.p_ls2a = 1/freq[argmax1]
+        argmax2 = np.argmax(np.delete(ps2, argmax1))
+        self.p_ls2b = 1/np.delete(freq2, argmax1)[argmax2]
+        argmax3 = np.argmax(np.delete(ps2, [argmax1, argmax2]))
+        self.p_ls2c = 1/np.delete(freq2, [argmax1, argmax2])[argmax3]
 
-        self.time_ls2fold, self.flux_ls2fold, self.orig_time_ls2fold, self.model_ls2 = model(self.time, self.flux, self.p_ls2, terms=2)
+        self.time_ls2fold, self.flux_ls2fold, self.orig_time_ls2fold, self.model_ls2 = model(self.time, self.flux, self.p_ls2a, terms=2)
         self.rms_ls2 = rms(self.model_ls2, self.flux_ls2fold)
         self.mad_ls2 = mad(self.model_ls2, self.flux_ls2fold)
         self.rvar_ls2 = rvar(self.flux_ls2fold)
@@ -44,7 +53,7 @@ class Spinner:
     def acf(self, lags, acff):
         self.lags = lags
         self.acf = acff
-        self.p_acf = get_acf_period(lags, acff)
+        self.p_acfa, self.p_acfb, self.p_acfc = get_acf_period(lags, acff)
         # x_peaks, y_peaks = find_all_peaks(lags, acff)
         # period = x_peaks[0]
         # if len(x_peaks) > 2:
@@ -54,7 +63,7 @@ class Spinner:
         #     self.p_err = None
         # self.p_acf = period
 
-        self.time_acffold, self.flux_acffold, self.orig_time_affold, self.model_acf = model(self.time, self.flux, self.p_acf, terms=2)
+        self.time_acffold, self.flux_acffold, self.orig_time_affold, self.model_acf = model(self.time, self.flux, self.p_acfa, terms=2)
         self.rms_acf = rms(self.model_acf, self.flux_acffold)
         self.mad_acf = mad(self.model_acf, self.flux_acffold)
         self.rvar_acf = rvar(self.flux_acffold)
@@ -404,7 +413,7 @@ def get_acf_period(lags, acf, cutoff=0):
     xpeaks, ypeaks = get_peak_statistics(lags[m], acf[m],
                                          sort_by="height")
 
-    return xpeaks[0] # this is the acf period
+    return xpeaks[0], xpeaks[1], xpeaks[2] # this is the acf period
 
 
 def find_all_peaks(x, y):
