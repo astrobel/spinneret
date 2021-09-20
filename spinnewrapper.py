@@ -40,7 +40,7 @@ for i, k in enumerate(kic_r):
     lc = lc.normalize() - 1 # to make butterworth filter work
 
     target_kep = Spinner(lc.time.value, lc.flux.value)
-    cdpp_kep = lc.estimate_cdpp()
+    cdpp_kep = lc.estimate_cdpp(transit_duration=4)
 
     freq, ps = ts.LombScargle(lc.time, lc.flux).autopower(nyquist_factor=1, samples_per_peak=30)
     target_kep.ls_one_term(freq.value, ps.value)
@@ -64,7 +64,7 @@ for i, k in enumerate(kic_r):
     lc_tess = tessify(lc)#, start_modifier=1000)
 
     target_tess = Spinner(lc_tess.time.value, lc_tess.flux.value)
-    cdpp_tess = lc_tess.estimate_cdpp()
+    cdpp_tess = lc_tess.estimate_cdpp(transit_duration=4)
 
     freq, ps = ts.LombScargle(lc.time, lc.flux).autopower(nyquist_factor=1, samples_per_peak=30)
     target_tess.ls_one_term(freq.value, ps.value)
@@ -91,7 +91,7 @@ for i, k in enumerate(kic_r):
     lc_butter = tessify(lc)#, start_modifier=1000)
 
     target_butter = Spinner(lc_butter.time.value, lc_butter.flux.value)
-    cdpp_butter = lc_butter.estimate_cdpp()
+    cdpp_butter = lc_butter.estimate_cdpp(transit_duration=4)
 
     freq, ps = ts.LombScargle(lc.time, lc.flux).autopower(nyquist_factor=1, samples_per_peak=30)
     target_butter.ls_one_term(freq.value, ps.value)
