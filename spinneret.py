@@ -20,6 +20,7 @@ class Spinner:
         self.time = time
         self.flux = flux
         self.rvar = rvar(flux)
+        self.cdpp = lc.estimate_cdpp(transit_duration=4).value
 
     def ls_one_term(self, freq, ps):
         self.freq1 = freq
@@ -31,10 +32,15 @@ class Spinner:
         argmax3 = np.argmax(np.delete(ps, [argmax1, argmax2]))
         self.p_ls1c = 1/np.delete(freq, [argmax1, argmax2])[argmax3]
 
-        self.time_ls1fold, self.flux_ls1fold, self.orig_time_ls1fold, self.model_ls1 = model(self.time, self.flux, self.p_ls1a)
-        self.rms_ls1 = rms(self.model_ls1, self.flux_ls1fold)
-        self.mad_ls1 = mad(self.model_ls1, self.flux_ls1fold)
-        self.rvar_ls1 = rvar(self.flux_ls1fold)
+        self.time_ls1a_fold, self.flux_ls1a_fold, self.orig_time_ls1a_fold, self.model_ls1a = model(self.time, self.flux, self.p_ls1a)
+        self.time_ls1b_fold, self.flux_ls1b_fold, self.orig_time_ls1b_fold, self.model_ls1b = model(self.time, self.flux, self.p_ls1b)
+        self.time_ls1c_fold, self.flux_ls1c_fold, self.orig_time_ls1c_fold, self.model_ls1c = model(self.time, self.flux, self.p_ls1c)
+        self.rms_ls1a = rms(self.model_ls1a, self.flux_ls1a_fold)
+        self.rms_ls1b = rms(self.model_ls1b, self.flux_ls1b_fold)
+        self.rms_ls1c = rms(self.model_ls1c, self.flux_ls1c_fold)
+        self.mad_ls1a = mad(self.model_ls1a, self.flux_ls1a_fold)
+        self.mad_ls1b = mad(self.model_ls1b, self.flux_ls1b_fold)
+        self.mad_ls1c = mad(self.model_ls1c, self.flux_ls1c_fold)
 
     def ls_two_term(self, freq, ps):
         self.freq2 = freq
@@ -45,10 +51,15 @@ class Spinner:
         argmax3 = np.argmax(np.delete(ps2, [argmax1, argmax2]))
         self.p_ls2c = 1/np.delete(freq2, [argmax1, argmax2])[argmax3]
 
-        self.time_ls2fold, self.flux_ls2fold, self.orig_time_ls2fold, self.model_ls2 = model(self.time, self.flux, self.p_ls2a, terms=2)
-        self.rms_ls2 = rms(self.model_ls2, self.flux_ls2fold)
-        self.mad_ls2 = mad(self.model_ls2, self.flux_ls2fold)
-        self.rvar_ls2 = rvar(self.flux_ls2fold)
+        self.time_ls2a_fold, self.flux_ls2a_fold, self.orig_time_ls2a_fold, self.model_ls2a = model(self.time, self.flux, self.p_ls2a)
+        self.time_ls2b_fold, self.flux_ls2b_fold, self.orig_time_ls2b_fold, self.model_ls2b = model(self.time, self.flux, self.p_ls2b)
+        self.time_ls2c_fold, self.flux_ls2c_fold, self.orig_time_ls2c_fold, self.model_ls2c = model(self.time, self.flux, self.p_ls2c)
+        self.rms_ls2a = rms(self.model_ls2a, self.flux_ls2a_fold)
+        self.rms_ls2b = rms(self.model_ls2b, self.flux_ls2b_fold)
+        self.rms_ls2c = rms(self.model_ls2c, self.flux_ls2c_fold)
+        self.mad_ls2a = mad(self.model_ls2a, self.flux_ls2a_fold)
+        self.mad_ls2b = mad(self.model_ls2b, self.flux_ls2b_fold)
+        self.mad_ls2c = mad(self.model_ls2c, self.flux_ls2c_fold)
 
     def acf(self, lags, acff):
         self.lags = lags
@@ -63,10 +74,15 @@ class Spinner:
         #     self.p_err = None
         # self.p_acf = period
 
-        self.time_acffold, self.flux_acffold, self.orig_time_affold, self.model_acf = model(self.time, self.flux, self.p_acfa, terms=2)
-        self.rms_acf = rms(self.model_acf, self.flux_acffold)
-        self.mad_acf = mad(self.model_acf, self.flux_acffold)
-        self.rvar_acf = rvar(self.flux_acffold)
+        self.time_acfa_fold, self.flux_acfa_fold, self.orig_time_acfa_fold, self.model_acfa = model(self.time, self.flux, self.p_acfa)
+        self.time_acfb_fold, self.flux_acfb_fold, self.orig_time_acfb_fold, self.model_acfb = model(self.time, self.flux, self.p_acfb)
+        self.time_acfc_fold, self.flux_acfc_fold, self.orig_time_acfc_fold, self.model_acfc = model(self.time, self.flux, self.p_acfc)
+        self.rms_acfa = rms(self.model_acfa, self.flux_acfa_fold)
+        self.rms_acfb = rms(self.model_acfb, self.flux_acfb_fold)
+        self.rms_acfc = rms(self.model_acfc, self.flux_acfc_fold)
+        self.mad_acfa = mad(self.model_acfa, self.flux_acfa_fold)
+        self.mad_acfb = mad(self.model_acfb, self.flux_acfb_fold)
+        self.mad_acfc = mad(self.model_acfc, self.flux_acfc_fold)
 
     def diagnostic_plot(self, heading=' '):
 
@@ -503,136 +519,6 @@ def fit_line(x, y, yerr):
     return w, sig
 
 
-
-
-
-
-
-
-
-
-# def diagnostics(lc, period, terms=1):
-#     """
-#     Fold a light curve and create a sine wave model based on a given period,
-#     and returns the 
-
-#     Args:
-#         lc (lightkurve LightCurve object): a light curve
-#         period (float): associated rotation period
-#         terms (Optional[int]): number of terms to use in the Lomb-Scargle
-#             periodogram for the model
-
-#     Returns:
-#         folded (lightkurve FoldedLightCurve object): a folded light curve
-#         model (Numpy array): sine wave model using the same time series as the
-#             folded light curve
-#         rms (float): RMS error between the folded LC and the model
-
-#     """
-
-#     folded = lc.fold(period)
-#     model = ts.LombScargle(folded.time.value, folded.flux.value, nterms=terms).model(folded.time.value, 1/period)
-
-#     return folded, model, rms(model.flux.value, folded.flux.value)
-
-
-# def rms(model, measured):
-#     """
-#     Quick function for find the RMS of two functions
-
-#     Args:
-#         model (Numpy array): model flux measurements
-#         measured (Numpy array): light curve flux
-    
-#     Returns:
-#         rms (float): RMS error between model and LC
-#     """
-
-#     return np.sqrt(sum(np.power(model-measured, 2))/len(measured))
-
-
-### OLD
-def diagnostic_plot(lc, freq, ps, freq2, ps2, lags, acf, p_ls, p_ls2, p_acf, heading=' ', makeplot=True):
-    """
-    Sanity check for the rotation pipeline
-
-    Args:
-        lc (Lightkurve LightCurve object): a light curve
-        ls (Lightkurve Periodogram object): the associated Lomb-Scargle
-            periodogram
-        lags (Numpy array): the associated ACF lags
-        acf (Numpy array): the associated ACF
-        p_ls (float): period determined from LS periodogram
-        p_acf (float): period determined from ACF
-        heading (Optional[string]): title for the plot
-        makeplot (Optional[bool]):
-
-    Returns:
-        fig (Matplotlib figure object): a diagnostic plot showing the light
-            curve, LS, and ACF, and a light curve folded on each of the
-            resultant periods
-    """
-
-    mosaic = """
-        AA
-        BC
-        FG
-        DE
-    """
-
-    fig = plt.figure(constrained_layout=True)
-    ax = fig.subplot_mosaic(mosaic)
-
-    ax['A'].scatter(lc.time.value, lc.flux.value, c=lc.time.value, s=3, cmap=lccmap)# '.', c='#4d0e02', ms='3')
-    ax['A'].set(xlabel='time (d)', ylabel='normalized flux', title=heading, xlim=(min(lc.time.value), max(lc.time.value)))
-
-    # 1-term LS
-    ax['B'].axvline(p_ls, c='#4d0e02', ls='-', lw=10, alpha=0.5) # this line will eventually be uncertainty
-    ax['B'].plot(1/freq.value, ps.value, c='#4d0e02')
-    ax['B'].axvline(p_ls, c='#33ffbe', ls='--')
-    ax['B'].set(xscale='log', xlabel='period (d)', ylabel='power', xlim=(min(1/freq.value), max(1/freq.value)))
-
-    folded = lc.fold(p_ls)
-    phase = np.linspace(min(folded.time.value), max(folded.time.value), 250)
-    sine_wave = ts.LombScargle(folded.time.value, folded.flux.value).model(phase, 1/p_ls)
-    ax['C'].scatter(folded.time.value, folded.flux.value, c=folded.time_original.value, s=3, cmap=lccmap)#, '.', c='#4ef5c0', ms='3')
-    ax['C'].plot(folded.time, sine_wave, c='#4d0e02', alpha=0.8, lw=7)
-    ax['C'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'LS period: {p_ls:.3f}d', xlim=(min(folded.time.value), max(folded.time.value)))
-
-    # 2-term LS
-    ax['F'].axvline(p_ls2, c='#4d0e02', ls='-', lw=10, alpha=0.5) # this line will eventually be uncertainty
-    ax['F'].plot(1/freq2.value, ps2.value, c='#4d0e02')
-    ax['F'].axvline(p_ls2, c='#33ffbe', ls='--')
-    ax['F'].set(xscale='log', xlabel='period (d)', ylabel='power', xlim=(min(1/freq2.value), max(1/freq2.value)))
-
-    folded = lc.fold(p_ls2)
-    phase = np.linspace(min(folded.time.value), max(folded.time.value), 250)
-    sine_wave = ts.LombScargle(folded.time.value, folded.flux.value, nterms=2).model(phase, 1/p_ls2)
-    xlower = min(min(folded.time.value), min(sine_wave))
-    xupper = max(max(folded.time.value), max(sine_wave))
-    ax['G'].scatter(folded.time.value, folded.flux.value, c=folded.time_original.value, s=3, cmap=lccmap)#, '.', c='#4ef5c0', ms='3')
-    ax['G'].plot(phase, sine_wave, c='#4d0e02', alpha=0.8, lw=7)
-    ax['G'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'LS period: {p_ls2:.3f}d', xlim=(min(folded.time.value), max(folded.time.value)))
-
-    # ACF
-    ax['D'].axvline(p_acf, c='#4d0e02', ls='-', lw=10, alpha=0.5) # this line will eventually be uncertainty
-    ax['D'].plot(lags, acf, c='#4d0e02')
-    ax['D'].axvline(p_acf, c='#33ffbe', ls='--')
-    ax['D'].set(xlim=(0,p_acf+5), xlabel='lags', ylabel='ACF')
-
-    folded = lc.fold(p_acf)
-    phase = np.linspace(min(folded.time.value), max(folded.time.value), 250)
-    sine_wave = ts.LombScargle(folded.time.value, folded.flux.value, nterms=2).model(phase, 1/p_acf)
-    xlower = min(min(folded.time.value), min(sine_wave))
-    xupper = max(max(folded.time.value), max(sine_wave))
-    ax['E'].scatter(folded.time.value, folded.flux.value, c=folded.time_original.value, s=3, cmap=lccmap)#, '.', c='#ff549b', ms='3')
-    ax['E'].plot(phase, sine_wave, c='#4d0e02', alpha=0.8, lw=7)
-    ax['E'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'ACF period: {p_acf:.3f}d', xlim=(min(folded.time.value), max(folded.time.value)))
-
-    fig.set_size_inches(9,12)
-
-    return fig
-
 def figsaver(fig, filepath, filename):
 
     cwd = os.getcwd()
@@ -642,39 +528,29 @@ def figsaver(fig, filepath, filename):
     plt.close(fig)
 
 
-# def acf_rotation(lc, interval, smooth=9, cutoff=0, window_length=99,
-#                  polyorder=3):
-#     """
-#     ADAPTED FROM STARSPOT
-#     Calculate a rotation period based on an autocorrelation function.
+def filemaker(spinner, kic, p_r, filepath='.', filename=None):
+    """
+    Args:
+        spinner: Spinner object
+    """
 
-#     Args:
-#         interval (float): The time in days between observations. For
-#             Kepler/K2 long cadence this is 0.02043365, for Tess its about
-#             0.00138889 days. Use interval = "TESS" or "Kepler" for these.
-#         smooth (Optional[float]): The smoothing window in days.
-#         cutoff (Optional[float]): The number of days to cut off at the
-#             beginning.
-#         window_length (Optional[float]): The filter window length.
-#         polyorder (Optional[float]): The polynomial order of the filter.
+    if filename == None:
+        filename = f'{kic}'
 
-#     Returns:
-#         acf_period (float): The ACF rotation period in days.
+    output_dict = {'KIC':kic,'Santos Period (d)':p_r,
+        'LS Period 1st peak (d)':spinner.p_ls1a,'LS Period 2nd peak(d)':spinner.p_ls1b,'LS Period 3rd peak (d)':spinner.p_ls1c,
+        'LS Period 1st RMS':spinner.rms_ls1a,'LS Period 1st MAD':spinner.mad_ls1a,
+        'LS Period 2nd RMS':spinner.rms_ls1b,'LS Period 2nd MAD':spinner.mad_ls1b,
+        'LS Period 3rd RMS':spinner.rms_ls1c,'LS Period 3rd MAD':spinner.mad_ls1c,
+        'LS 2-term Period 1st peak (d)':spinner.p_ls2a,'LS 2-term Period 2nd peak (d)':spinner.p_ls2b,'LS 2-term Period 3rd peak (d)':spinner.p_ls2c,
+        'LS 2-term Period 1st RMS':spinner.rms_ls1a,'LS 2-term Period 1st MAD':spinner.mad_ls1a,
+        'LS 2-term Period 2nd RMS':spinner.rms_ls1b,'LS 2-term Period 2nd MAD':spinner.mad_ls1b,
+        'LS 2-term Period 3rd RMS':spinner.rms_ls1c,'LS 2-term Period 3rd MAD':spinner.mad_ls1c,
+        'ACF Period 1st peak (d)':spinner.p_acfa,'ACF Period 2nd peak (d)':spinner.p_acfb,'ACF Period 3rd peak (d)':spinner.p_acfc,
+        'ACF Period 1st RMS':spinner.rms_ls1a,'ACF Period 1st MAD':spinner.mad_ls1a,
+        'ACF Period 2nd RMS':spinner.rms_ls1b,'ACF Period 2nd MAD':spinner.mad_ls1b,
+        'ACF Period 3rd RMS':spinner.rms_ls1c,'ACF Period 3rd MAD':spinner.mad_ls1c,
+        'Rvar':spinner.rvar,'CDPP':spinner.cdpp}
 
-#     """
-#     # if interval == "TESS":
-#     #     interval = 0.00138889
-#     # if interval == "Kepler":
-#     #     interval = 0.02043365
-
-#     lags, acf, _x, _y = simple_acf(lc.time.value, lc.flux.value, interval,
-#                                    smooth=smooth,
-#                                    window_length=window_length,
-#                                    polyorder=polyorder)
-
-#     # find all the peaks
-#     m = lags > cutoff
-#     xpeaks, ypeaks = get_peak_statistics(lags[m], acf[m],
-#                                          sort_by="height")
-
-#     return xpeaks[0] # this is the acf period
+    output_df = pd.DataFrame(output_dict)
+    output_df.to_csv(f'{filepath}{filename}')
