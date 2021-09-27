@@ -34,9 +34,7 @@ for i, k in enumerate(kic_r):
     else:
         openstr = '0' + str(k)
 
-    # /data/shared_data/kepler/Q9
-
-    hdu = fits.open(f'kplr{openstr}-2011177032512_llc.fits') # Q9, will need changing for TESS data
+    hdu = fits.open(f'/data/shared_data/kepler/Q9/kplr{openstr}-2011177032512_llc.fits') # Q9, will need changing for TESS data
     table = hdu[1].data
     time = table['TIME']
     flux = table['PDCSAP_FLUX']
