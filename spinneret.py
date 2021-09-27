@@ -20,7 +20,7 @@ class Spinner:
         self.time = time
         self.flux = flux
         self.rvar = rvar(flux)
-        self.cdpp = lk.LightCurve(time=t * u.d, flux=f * u.d).estimate_cdpp(transit_duration=4).value
+        self.cdpp = lk.LightCurve(time=time * u.d, flux=flux * u.d).estimate_cdpp(transit_duration=4).value
 
     def ls_one_term(self, freq, ps):
         self.freq1 = freq
