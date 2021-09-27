@@ -213,7 +213,7 @@ def clip(time, flux, bounds):
     sigma = np.std(flux)
     avg = np.mean(flux)
 
-    outliers = [f for f in flux if f > avg + sigma*bounds or f < avg - sigma*bounds]
+    outliers = [int(f) for f in flux if f > avg + sigma*bounds or f < avg - sigma*bounds]
 
     fluxnew = np.delete(flux, outliers)
     timenew = np.delete(time, outliers)
