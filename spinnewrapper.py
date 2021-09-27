@@ -5,6 +5,7 @@ import matplotlib as mpl
 import pandas as pd
 import scipy.signal as sps
 import astropy.timeseries as ts
+from astropy.io import fits
 import os, sys, time
 from spinneret import *
 
@@ -26,19 +27,32 @@ sos = sps.butter(3, (1/27), 'hp', fs=48, output='sos')
 for i, k in enumerate(kic_r):
 
     # start = time.time()
+    if len(str(k)) == 6:
+        openstr = '000' + str(k)
+    elif len(str(k)) == 7:
+        openstr = '00' + str(k)
+    else:
+        openstr = '0' + str(k)
 
-    lc = lk.search_lightcurve(f'KIC {k}', quarter=9).download().remove_outliers()
-    lc = lc.normalize() - 1 # to make butterworth filter work
+    # /data/shared_data/kepler/Q9
 
-    target_kep = Spinner(lc.time.value, lc.flux.value)
+    hdu = fits.open(f'kplr{openstr}-2011177032512_llc.fits') # Q9, will need changing for TESS data
+    table = hdu[1].data
+    time = table['TIME']
+    flux = table['PDCSAP_FLUX']
+    time, flux = nancleaner2d(time, flux)
+    time, flux = clip(time, flux, 3) #3 sigma clip
+    flux = flux / np.linalg.norm(flux)
 
-    freq, ps = ts.LombScargle(lc.time, lc.flux).autopower(nyquist_factor=1, samples_per_peak=30)
+    target_kep = Spinner(time, flux)
+
+    freq, ps = ts.LombScargle(time, flux).autopower(nyquist_factor=1, samples_per_peak=30)
     target_kep.ls_one_term(freq.value, ps.value)
 
-    freq, ps = ts.LombScargle(lc.time, lc.flux, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
+    freq, ps = ts.LombScargle(time, flux, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
     target_kep.ls_two_term(freq.value, ps.value)
 
-    lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(target_kep.time, target_kep.flux, kep_cadence, width=16)
+    lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, kep_cadence, width=16)
     target_kep.acf(lags, acf)
 
     # os.chdir('./acfs')
@@ -52,17 +66,17 @@ for i, k in enumerate(kic_r):
 
     #####
 
-    lc_tess = tessify(lc)#, start_modifier=1000)
+    time_tess, flux_tess = tessify(time, flux)
 
-    target_tess = Spinner(lc_tess.time.value, lc_tess.flux.value)
+    target_tess = Spinner(time_tess, flux_tess)
 
-    freq, ps = ts.LombScargle(lc.time, lc.flux).autopower(nyquist_factor=1, samples_per_peak=30)
+    freq, ps = ts.LombScargle(time_tess, flux_tess).autopower(nyquist_factor=1, samples_per_peak=30)
     target_tess.ls_one_term(freq.value, ps.value)
 
-    freq, ps = ts.LombScargle(lc.time, lc.flux, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
+    freq, ps = ts.LombScargle(time_tess, flux_tess, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
     target_tess.ls_two_term(freq.value, ps.value)
 
-    lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(target_tess.time, target_tess.flux, kep_cadence, width=16)
+    lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_tess, flux_tess, kep_cadence, width=16)
     target_tess.acf(lags, acf)
 
     # os.chdir('./acfs')
@@ -76,20 +90,17 @@ for i, k in enumerate(kic_r):
 
     #####
 
-    newflux = sps.sosfilt(sos, lc.flux.value)
-    lc.flux = newflux
+    flux_butter = sps.sosfilt(sos, flux_tess)
 
-    lc_butter = tessify(lc)#, start_modifier=1000)
+    target_butter = Spinner(time_tess, flux_butter)
 
-    target_butter = Spinner(lc_butter.time.value, lc_butter.flux.value)
-
-    freq, ps = ts.LombScargle(lc.time, lc.flux).autopower(nyquist_factor=1, samples_per_peak=30)
+    freq, ps = ts.LombScargle(time_tess, flux_butter).autopower(nyquist_factor=1, samples_per_peak=30)
     target_butter.ls_one_term(freq.value, ps.value)
 
-    freq, ps = ts.LombScargle(lc.time, lc.flux, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
+    freq, ps = ts.LombScargle(time_tess, flux_butter, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
     target_butter.ls_two_term(freq.value, ps.value)
 
-    lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(target_butter.time, target_butter.flux, kep_cadence, width=16)
+    lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_tess, flux_butter, kep_cadence, width=16)
     target_butter.acf(lags, acf)
 
     # os.chdir('./acfs')

@@ -20,7 +20,7 @@ class Spinner:
         self.time = time
         self.flux = flux
         self.rvar = rvar(flux)
-        self.cdpp = lc.estimate_cdpp(transit_duration=4).value
+        self.cdpp = lk.LightCurve(time=t * u.d, flux=f * u.d).estimate_cdpp(transit_duration=4).value
 
     def ls_one_term(self, freq, ps):
         self.freq1 = freq
@@ -196,20 +196,58 @@ def rvar(flux):
     return np.percentile(flux, 95) - np.percentile(flux, 5)
 
 
-def tessify(lc, sector=14, start_modifier=0):
+def clip(time, flux, bounds):
+    """
+    Quick function for outlier clipping
+
+    Args:
+        time (Numpy array): time
+        flux (Numpy array): PDCSAP flux
+        bounds (float): number of standard deviations to clip
+
+    Returns:
+        timenew (Numpy array): clipped time
+        fluxnew (Numpy array): clipped flux
+    """
+
+    sigma = np.std(flux)
+    avg = np.mean(flux)
+
+    outliers = [f for f in flux if f > avg + sigma*bounds or f < avg - sigma*bounds]
+
+    fluxnew = np.delete(flux, outliers)
+    timenew = np.delete(time, outliers)
+
+    return timenew, fluxnew
+
+
+def nancleaner2d(time, flux):
+
+   blend = np.array([time, flux])
+   blend = np.transpose(blend)
+   blend2 = np.ma.compress_rows(np.ma.fix_invalid(blend))
+
+   timenew = blend2[:,0]
+   fluxnew = blend2[:,1]
+
+   return timenew, fluxnew
+
+
+def tessify(time, flux, sector=14, start_modifier=0):
     """
     Takes a single quarter of Kepler time series data and trims it to match 
     the length and shape of a TESS time series. 
 
     Args:
-        lc (lightkurve LightCurve object): A single quarter of a Kepler
-            time series.
+        time (Numpy array): single Kepler quarter time series
+        flux (Numpy array): single Kepler quarter flux series
         sector (Optional[int]): TESS sector to mimic
         start_modifier (Optional[int]): First cadence to include in the
             TESSified time series.
 
     Returns:
-        lc_new (lightkurve LightCurve object): Single sector TESS-like time series.
+        timenew (Numpy array): single TESS-like sector time series
+        fluxnew (Numpy array): single TESS-like sector flux series
     """
     
     # get tess orbit timing
@@ -226,27 +264,24 @@ def tessify(lc, sector=14, start_modifier=0):
     gap = start2-end1
     span2 = end2-start2
     
-    keep = np.zeros(lc.time.value.shape, dtype=bool)
+    keep = np.zeros(time.shape, dtype=bool)
 
     # get cadence numbers for stop and start points
     try:
         newstart1 = 0 + start_modifier
-        newend1 = np.where(np.isclose(lc.time.value,lc.time.value[0] + span1))[0][0] + start_modifier
-        newstart2 = np.where(np.isclose(lc.time.value,lc.time.value[newend1] + gap))[0][0] + start_modifier
-        newend2 = np.where(np.isclose(lc.time.value,lc.time.value[newstart2] + span2))[0][0] + start_modifier
+        newend1 = np.where(np.isclose(time,time[0] + span1))[0][0] + start_modifier
+        newstart2 = np.where(np.isclose(time,time[newend1] + gap))[0][0] + start_modifier
+        newend2 = np.where(np.isclose(time,time[newstart2] + span2))[0][0] + start_modifier
     except IndexError:
         raise IndexError('Data selected is out of range. Try using a lower start_modifier')
     
     keep[newstart1:newend1+1] = True
     keep[newstart2:newend2+1] = True
     
-    lc_new = lk.LightCurve()
-    lc_new.time = lc.time[keep==True]
-    lc_new.flux = lc.flux[keep==True]
-    lc_new.flux_err = lc.flux_err[keep==True]
-    lc_new.quality = lc.quality[keep==True]
+    timenew = time[keep==True]
+    fluxnew = flux[keep==True]
     
-    return lc_new
+    return timenew, fluxnew
 
 
 def interp(x_gaps, y_gaps, interval, interp_style="zero"):
