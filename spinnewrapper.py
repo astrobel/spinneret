@@ -45,10 +45,10 @@ for i, k in enumerate(kic_r):
     target_kep = Spinner(time, flux)
 
     freq, ps = ts.LombScargle(time, flux).autopower(nyquist_factor=1, samples_per_peak=30)
-    target_kep.ls_one_term(freq.value, ps.value)
+    target_kep.ls_one_term(freq, ps)
 
     freq, ps = ts.LombScargle(time, flux, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
-    target_kep.ls_two_term(freq.value, ps.value)
+    target_kep.ls_two_term(freq, ps)
 
     lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, kep_cadence, width=16)
     target_kep.acf(lags, acf)
@@ -69,10 +69,10 @@ for i, k in enumerate(kic_r):
     target_tess = Spinner(time_tess, flux_tess)
 
     freq, ps = ts.LombScargle(time_tess, flux_tess).autopower(nyquist_factor=1, samples_per_peak=30)
-    target_tess.ls_one_term(freq.value, ps.value)
+    target_tess.ls_one_term(freq, ps)
 
     freq, ps = ts.LombScargle(time_tess, flux_tess, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
-    target_tess.ls_two_term(freq.value, ps.value)
+    target_tess.ls_two_term(freq, ps)
 
     lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_tess, flux_tess, kep_cadence, width=16)
     target_tess.acf(lags, acf)
@@ -93,10 +93,10 @@ for i, k in enumerate(kic_r):
     target_butter = Spinner(time_tess, flux_butter)
 
     freq, ps = ts.LombScargle(time_tess, flux_butter).autopower(nyquist_factor=1, samples_per_peak=30)
-    target_butter.ls_one_term(freq.value, ps.value)
+    target_butter.ls_one_term(freq, ps)
 
     freq, ps = ts.LombScargle(time_tess, flux_butter, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
-    target_butter.ls_two_term(freq.value, ps.value)
+    target_butter.ls_two_term(freq, ps)
 
     lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_tess, flux_butter, kep_cadence, width=16)
     target_butter.acf(lags, acf)

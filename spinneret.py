@@ -45,11 +45,12 @@ class Spinner:
     def ls_two_term(self, freq, ps):
         self.freq2 = freq
         self.ps2 = ps
+        argmax1 = np.argmax(ps)
         self.p_ls2a = 1/freq[argmax1]
-        argmax2 = np.argmax(np.delete(ps2, argmax1))
-        self.p_ls2b = 1/np.delete(freq2, argmax1)[argmax2]
-        argmax3 = np.argmax(np.delete(ps2, [argmax1, argmax2]))
-        self.p_ls2c = 1/np.delete(freq2, [argmax1, argmax2])[argmax3]
+        argmax2 = np.argmax(np.delete(ps, argmax1))
+        self.p_ls2b = 1/np.delete(freq, argmax1)[argmax2]
+        argmax3 = np.argmax(np.delete(ps, [argmax1, argmax2]))
+        self.p_ls2c = 1/np.delete(freq, [argmax1, argmax2])[argmax3]
 
         self.time_ls2a_fold, self.flux_ls2a_fold, self.orig_time_ls2a_fold, self.model_ls2a = model(self.time, self.flux, self.p_ls2a)
         self.time_ls2b_fold, self.flux_ls2b_fold, self.orig_time_ls2b_fold, self.model_ls2b = model(self.time, self.flux, self.p_ls2b)
@@ -75,14 +76,29 @@ class Spinner:
         # self.p_acf = period
 
         self.time_acfa_fold, self.flux_acfa_fold, self.orig_time_acfa_fold, self.model_acfa = model(self.time, self.flux, self.p_acfa)
-        self.time_acfb_fold, self.flux_acfb_fold, self.orig_time_acfb_fold, self.model_acfb = model(self.time, self.flux, self.p_acfb)
-        self.time_acfc_fold, self.flux_acfc_fold, self.orig_time_acfc_fold, self.model_acfc = model(self.time, self.flux, self.p_acfc)
         self.rms_acfa = rms(self.model_acfa, self.flux_acfa_fold)
-        self.rms_acfb = rms(self.model_acfb, self.flux_acfb_fold)
-        self.rms_acfc = rms(self.model_acfc, self.flux_acfc_fold)
-        self.mad_acfa = mad(self.model_acfa, self.flux_acfa_fold)
-        self.mad_acfb = mad(self.model_acfb, self.flux_acfb_fold)
-        self.mad_acfc = mad(self.model_acfc, self.flux_acfc_fold)
+        if self.p_acfb != None:
+            self.time_acfb_fold, self.flux_acfb_fold, self.orig_time_acfb_fold, self.model_acfb = model(self.time, self.flux, self.p_acfb)
+            self.rms_acfb = rms(self.model_acfb, self.flux_acfb_fold)
+            self.mad_acfb = mad(self.model_acfb, self.flux_acfb_fold)
+        else:
+            self.time_acfb_fold = None
+            self.flux_acfb_fold = None
+            self.orig_time_acfb_fold = None
+            self.model_acfb = None
+            self.rms_acfb = None
+            self.mad_acfb = None
+        if self.p_acfc != None:
+            self.time_acfc_fold, self.flux_acfc_fold, self.orig_time_acfc_fold, self.model_acfc = model(self.time, self.flux, self.p_acfc)
+            self.rms_acfc = rms(self.model_acfc, self.flux_acfc_fold)
+            self.mad_acfc = mad(self.model_acfc, self.flux_acfc_fold)
+        else:
+            self.time_acfc_fold = None
+            self.flux_acfc_fold = None
+            self.orig_time_acfc_fold = None
+            self.model_acfc = None
+            self.rms_acfc = None
+            self.mad_acfc = None
 
     def diagnostic_plot(self, heading=' '):
 
@@ -101,43 +117,43 @@ class Spinner:
         fig = plt.figure(constrained_layout=True)
         ax = fig.subplot_mosaic(mosaic)
 
-        xmax = max(self.p_ls1, self.p_ls2, self.p_acf)
+        xmax = max(self.p_ls1a, self.p_ls2a, self.p_acfa)
 
         ax['A'].scatter(self.time, self.flux, c=self.time, s=3, cmap=lccmap)# '.', c='#4d0e02', ms='3')
         ax['A'].set(xlabel='time (d)', ylabel='normalized flux', title=heading, xlim=(min(self.time), max(self.time)))
 
         # 1-term LS
         # ax['B'].axvspan(self.p_ls1-line_ls1(self.p_ls1), self.p_ls1+line_ls1(self.p_ls1), color='#86fa20')
-        ax['B'].axvline(self.p_ls1, c='#86fa20', ls='-', lw=10)
+        ax['B'].axvline(self.p_ls1a, c='#86fa20', ls='-', lw=10)
         ax['B'].plot(1/self.freq1, self.ps1, c='#4d0e02')
         # ax['B'].axvline(self.p_ls1, c='#33ffbe', ls='--')
         ax['B'].set(xlabel='period (d)', ylabel='power', xlim=(0,xmax+10)) # xscale='log', xlim=(min(1/self.freq1), max(1/self.freq1))
 
-        ax['C'].scatter(self.time_ls1fold, self.flux_ls1fold, c=self.orig_time_ls1fold, s=3, cmap=lccmap)#, '.', c='#4ef5c0', ms='3')
-        ax['C'].plot(self.time_ls1fold, self.model_ls1, c='#4d0e02', alpha=0.8, lw=7)
-        ax['C'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'LS period: {self.p_ls1:.3f}d', xlim=(min(self.time_ls1fold), max(self.time_ls1fold)))
+        ax['C'].scatter(self.time_ls1a_fold, self.flux_ls1a_fold, c=self.orig_time_ls1a_fold, s=3, cmap=lccmap)#, '.', c='#4ef5c0', ms='3')
+        ax['C'].plot(self.time_ls1a_fold, self.model_ls1a, c='#4d0e02', alpha=0.8, lw=7)
+        ax['C'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'LS period: {self.p_ls1a:.3f}d', xlim=(min(self.time_ls1a_fold), max(self.time_ls1a_fold)))
 
         # 2-term LS
         # ax['D'].axvspan(self.p_ls2-line_ls2(self.p_ls2), self.p_ls2+line_ls2(self.p_ls2), color='#86fa20')
-        ax['D'].axvline(self.p_ls2, c='#86fa20', ls='-', lw=10) # this line will eventually be uncertainty
+        ax['D'].axvline(self.p_ls2a, c='#86fa20', ls='-', lw=10) # this line will eventually be uncertainty
         ax['D'].plot(1/self.freq2, self.ps2, c='#4d0e02')
         # ax['D'].axvline(self.p_ls2, c='#33ffbe', ls='--')
         ax['D'].set(xlabel='period (d)', ylabel='power', xlim=(0,xmax+10))
 
-        ax['E'].scatter(self.time_ls2fold, self.flux_ls2fold, c=self.orig_time_ls2fold, s=3, cmap=lccmap)#, '.', c='#4ef5c0', ms='3')
-        ax['E'].plot(self.time_ls2fold, self.model_ls2, c='#4d0e02', alpha=0.8, lw=7)
-        ax['E'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'LS period: {self.p_ls2:.3f}d', xlim=(min(self.time_ls2fold), max(self.time_ls2fold)))
+        ax['E'].scatter(self.time_ls2a_fold, self.flux_ls2a_fold, c=self.orig_time_ls2a_fold, s=3, cmap=lccmap)#, '.', c='#4ef5c0', ms='3')
+        ax['E'].plot(self.time_ls2a_fold, self.model_ls2a, c='#4d0e02', alpha=0.8, lw=7)
+        ax['E'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'LS period: {self.p_ls2a:.3f}d', xlim=(min(self.time_ls2a_fold), max(self.time_ls2a_fold)))
 
         # ACF
         # ax['F'].axvspan(self.p_acf-line_acf(self.p_acf), self.p_acf+line_acf(self.p_acf), color='#86fa20')
-        ax['F'].axvline(self.p_acf, c='#86fa20', ls='-', lw=10) # this line will eventually be uncertainty
+        ax['F'].axvline(self.p_acfa, c='#86fa20', ls='-', lw=10) # this line will eventually be uncertainty
         ax['F'].plot(self.lags, self.acf, c='#4d0e02')
         # ax['F'].axvline(self.p_acf, c='#33ffbe', ls='--')
         ax['F'].set(xlim=(0,xmax+10), xlabel='lags', ylabel='ACF')
 
-        ax['G'].scatter(self.time_acffold, self.flux_acffold, c=self.orig_time_affold, s=3, cmap=lccmap)#, '.', c='#ff549b', ms='3')
-        ax['G'].plot(self.time_acffold, self.model_acf, c='#4d0e02', alpha=0.8, lw=7)
-        ax['G'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'ACF period: {self.p_acf:.3f}d', xlim=(min(self.time_acffold), max(self.time_acffold)))
+        ax['G'].scatter(self.time_acfa_fold, self.flux_acfa_fold, c=self.orig_time_acfa_fold, s=3, cmap=lccmap)#, '.', c='#ff549b', ms='3')
+        ax['G'].plot(self.time_acfa_fold, self.model_acfa, c='#4d0e02', alpha=0.8, lw=7)
+        ax['G'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'ACF period: {self.p_acfa:.3f}d', xlim=(min(self.time_acfa_fold), max(self.time_acfa_fold)))
 
         fig.set_size_inches(9,12)
 
@@ -463,6 +479,10 @@ def get_acf_period(lags, acf, cutoff=0):
     m = lags > cutoff
     xpeaks, ypeaks = get_peak_statistics(lags[m], acf[m],
                                          sort_by="height")
+    if len(xpeaks) == 1:
+        xpeaks = np.r_[xpeaks, None, None]
+    elif len(xpeaks) == 2:
+        xpeaks = np.r_[xpeaks, None]
 
     return xpeaks[0], xpeaks[1], xpeaks[2] # this is the acf period
 
@@ -587,5 +607,5 @@ def filemaker(spinner, kic, p_r, filepath='.', filename=None):
         'ACF Period 3rd RMS':spinner.rms_ls1c,'ACF Period 3rd MAD':spinner.mad_ls1c,
         'Rvar':spinner.rvar,'CDPP':spinner.cdpp}
 
-    output_df = pd.DataFrame(output_dict)
+    output_df = pd.DataFrame(output_dict, index=[0])
     output_df.to_csv(f'{filepath}{filename}')
