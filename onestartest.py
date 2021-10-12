@@ -9,6 +9,16 @@ from astropy.io import fits
 import os, sys, time
 from spinneret import *
 
+try:
+    os.mkdir('figs')
+except FileExistsError:
+    pass
+
+try:
+    os.mkdir('targetdata')
+except FileExistsError:
+    pass
+
 rotators = pd.read_csv('S21_train.csv')
 # control = pd.read_csv('M14nonrotators.csv')
 
@@ -22,8 +32,8 @@ tess_cadence = 1/24/30 # 2min cadence, for use later
 # butterworth filter for tessify data
 sos = sps.butter(3, (1/27), 'hp', fs=48, output='sos')
 
-i = 0
 k = 1026146
+i = kic_r.index[kic_r==k][0]
 
 # start = time.time()
 if len(str(k)) == 6:
@@ -52,14 +62,10 @@ target_kep.ls_two_term(freq, ps)
 lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, kep_cadence, width=16)
 target_kep.acf(lags, acf)
 
-# os.chdir('./acfs')
-# np.savetxt(f'KIC{k}_kep_acf.csv', np.c_[lags_raw, acf_raw], delimiter=',')
-# os.chdir('..')
-
-fig1 = target_kep.diagnostic_plot(heading=f'KIC {k}: Kepler Q9 // McQuillan 14 period = {p_r[i]:.3f}d')
+fig1 = target_kep.diagnostic_plot(heading=f'KIC {k}: Kepler Q9 // Santos 21 period = {p_r[i]:.3f}d')
 # figsaver(fig1, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_kep.png')
-figsaver(fig1, './figs', f'KIC{k}_kep.png')
-filemaker(target_kep, k, p_r[i], filepath='./targetdata', filename=f'kic{k}_kepler.csv')
+figsaver(fig1, f'KIC{k}_kep.png')
+filemaker(target_kep, k, p_r[i], filename=f'kic{k}_kepler.csv')
 
 #####
 
@@ -76,14 +82,10 @@ target_tess.ls_two_term(freq, ps)
 lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_tess, flux_tess, kep_cadence, width=16)
 target_tess.acf(lags, acf)
 
-# os.chdir('./acfs')
-# np.savetxt(f'KIC{k}_tess1_acf.csv', np.c_[lags_raw, acf_raw], delimiter=',')
-# os.chdir('..')
-
-fig2 = target_tess.diagnostic_plot(heading=f'KIC {k}: TESSify // McQuillan 14 period = {p_r[i]:.3f}d')
+fig2 = target_tess.diagnostic_plot(heading=f'KIC {k}: TESSify // Santos 21 period = {p_r[i]:.3f}d')
 # figsaver(fig2, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_tess1.png')
-figsaver(fig2, './figs', f'KIC{k}_tess1.png')
-filemaker(target_tess, k, p_r[i], filepath='./targetdata', filename=f'kic{k}_tess.csv')
+figsaver(fig2, f'KIC{k}_tess1.png')
+filemaker(target_tess, k, p_r[i], filename=f'kic{k}_tess.csv')
 
 #####
 
@@ -100,14 +102,10 @@ target_butter.ls_two_term(freq, ps)
 lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_tess, flux_butter, kep_cadence, width=16)
 target_butter.acf(lags, acf)
 
-# os.chdir('./acfs')
-# np.savetxt(f'KIC{k}_tess2_acf.csv', np.c_[lags_raw, acf_raw], delimiter=',')
-# os.chdir('..')
-
-fig3 = target_butter.diagnostic_plot(heading=f'KIC {k}: TESSify + 27d Butterworth filter // McQuillan 14 period = {p_r[i]:.3f}d')
+fig3 = target_butter.diagnostic_plot(heading=f'KIC {k}: TESSify + 27d Butterworth filter // Santos 21 period = {p_r[i]:.3f}d')
 # figsaver(fig3, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_tess2.png')
-figsaver(fig3, './figs', f'KIC{k}_tess2.png')
-filemaker(target_butter, k, p_r[i], filepath='./targetdata', filename=f'kic{k}_final.csv')
+figsaver(fig3, f'KIC{k}_tess2.png')
+filemaker(target_butter, k, p_r[i], filename=f'kic{k}_final.csv')
 
 # if i == 3:
 #     sys.exit()

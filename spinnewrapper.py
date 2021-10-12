@@ -9,6 +9,16 @@ from astropy.io import fits
 import os, sys, time
 from spinneret import *
 
+try:
+    os.mkdir('figs')
+except FileExistsError:
+    pass
+
+try:
+    os.mkdir('targetdata')
+except FileExistsError:
+    pass
+
 rotators = pd.read_csv('S21_train.csv')[:200] # testing on first 200 stars
 
 kic_r = rotators['KIC']
@@ -54,8 +64,8 @@ for i, k in enumerate(kic_r):
 
     fig1 = target_kep.diagnostic_plot(heading=f'KIC {k}: Kepler Q9 // McQuillan 14 period = {p_r[i]:.3f}d')
     # figsaver(fig1, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_kep.png')
-    figsaver(fig1, './figs', f'KIC{k}_kep.png')
-    filemaker(target_kep, k, p_r[i], filepath='./targetdata', filename=f'kic{k}_kepler.csv')
+    figsaver(fig1, f'KIC{k}_kep.png')
+    filemaker(target_kep, k, p_r[i], filename=f'kic{k}_kepler.csv')
 
     #####
 
@@ -74,8 +84,8 @@ for i, k in enumerate(kic_r):
     
     fig2 = target_tess.diagnostic_plot(heading=f'KIC {k}: TESSify // McQuillan 14 period = {p_r[i]:.3f}d')
     # figsaver(fig2, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_tess1.png')
-    figsaver(fig2, './figs', f'KIC{k}_tess1.png')
-    filemaker(target_tess, k, p_r[i], filepath='./targetdata', filename=f'kic{k}_tess.csv')
+    figsaver(fig2, f'KIC{k}_tess1.png')
+    filemaker(target_tess, k, p_r[i], filename=f'kic{k}_tess.csv')
 
     #####
 
@@ -94,8 +104,8 @@ for i, k in enumerate(kic_r):
 
     fig3 = target_butter.diagnostic_plot(heading=f'KIC {k}: TESSify + 27d Butterworth filter // McQuillan 14 period = {p_r[i]:.3f}d')
     # figsaver(fig3, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_tess2.png')
-    figsaver(fig3, './figs', f'KIC{k}_tess2.png')
-    filemaker(target_butter, k, p_r[i], filepath='./targetdata', filename=f'kic{k}_final.csv')
+    figsaver(fig3, f'KIC{k}_tess2.png')
+    filemaker(target_butter, k, p_r[i], filename=f'kic{k}_final.csv')
 
     # if i == 3:
     #     sys.exit()

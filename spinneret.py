@@ -574,7 +574,7 @@ def fit_line(x, y, yerr):
     return w, sig
 
 
-def figsaver(fig, filepath, filename):
+def figsaver(fig, filename, filepath='./figs'):
 
     cwd = os.getcwd()
     os.chdir(filepath)
@@ -583,14 +583,14 @@ def figsaver(fig, filepath, filename):
     plt.close(fig)
 
 
-def filemaker(spinner, kic, p_r, filepath='.', filename=None):
+def filemaker(spinner, kic, p_r, filename=None, filepath='./targetdata'):
     """
     Args:
         spinner: Spinner object
     """
 
     if filename == None:
-        filename = f'{kic}'
+        filename = f'{kic}.csv'
 
     output_dict = {'KIC':kic,'Santos Period (d)':p_r,
         'LS Period 1st peak (d)':spinner.p_ls1a,'LS Period 2nd peak(d)':spinner.p_ls1b,'LS Period 3rd peak (d)':spinner.p_ls1c,
@@ -608,4 +608,8 @@ def filemaker(spinner, kic, p_r, filepath='.', filename=None):
         'Rvar':spinner.rvar,'CDPP':spinner.cdpp}
 
     output_df = pd.DataFrame(output_dict, index=[0])
-    output_df.to_csv(f'{filepath}{filename}')
+
+    cwd = os.getcwd()
+    os.chdir(filepath)
+    output_df.to_csv(filename)
+    os.chdir(cwd)
