@@ -49,7 +49,7 @@ for i, k in enumerate(kic_r):
     flux = table['PDCSAP_FLUX']
     time, flux = nancleaner2d(time, flux)
     time, flux = clip(time, flux, 3) #3 sigma clip
-    flux = flux / np.linalg.norm(flux)
+    flux = lk.LightCurve(time=time, flux=flux).normalize().flux.value - 1
 
     target_kep = Spinner(time, flux)
 

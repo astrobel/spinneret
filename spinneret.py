@@ -66,14 +66,6 @@ class Spinner:
         self.lags = lags
         self.acf = acff
         self.p_acfa, self.p_acfb, self.p_acfc = get_acf_period(lags, acff)
-        # x_peaks, y_peaks = find_all_peaks(lags, acff)
-        # period = x_peaks[0]
-        # if len(x_peaks) > 2:
-        #     good_peaks, errs = find_peaks_at_integers(period, x_peaks)
-        #     period, self.p_err = fit_line_to_good_peaks(good_peaks, errs)
-        # else:
-        #     self.p_err = None
-        # self.p_acf = period
 
         self.time_acfa_fold, self.flux_acfa_fold, self.orig_time_acfa_fold, self.model_acfa = model(self.time, self.flux, self.p_acfa)
         self.rms_acfa = rms(self.model_acfa, self.flux_acfa_fold)
