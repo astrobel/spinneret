@@ -9,8 +9,7 @@ from astropy.io import fits
 import os, sys, time
 from spinneret import *
 
-rotators = pd.read_csv('M14rotators.csv')
-# control = pd.read_csv('M14nonrotators.csv')
+rotators = pd.read_csv('S21_train.csv')[:200] # testing on first 200 stars
 
 kic_r = rotators['KIC']
 p_r = rotators['Prot']
@@ -53,10 +52,6 @@ for i, k in enumerate(kic_r):
     lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, kep_cadence, width=16)
     target_kep.acf(lags, acf)
 
-    # os.chdir('./acfs')
-    # np.savetxt(f'KIC{k}_kep_acf.csv', np.c_[lags_raw, acf_raw], delimiter=',')
-    # os.chdir('..')
-
     fig1 = target_kep.diagnostic_plot(heading=f'KIC {k}: Kepler Q9 // McQuillan 14 period = {p_r[i]:.3f}d')
     # figsaver(fig1, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_kep.png')
     figsaver(fig1, './figs', f'KIC{k}_kep.png')
@@ -76,10 +71,6 @@ for i, k in enumerate(kic_r):
 
     lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_tess, flux_tess, kep_cadence, width=16)
     target_tess.acf(lags, acf)
-
-    # os.chdir('./acfs')
-    # np.savetxt(f'KIC{k}_tess1_acf.csv', np.c_[lags_raw, acf_raw], delimiter=',')
-    # os.chdir('..')
     
     fig2 = target_tess.diagnostic_plot(heading=f'KIC {k}: TESSify // McQuillan 14 period = {p_r[i]:.3f}d')
     # figsaver(fig2, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_tess1.png')
@@ -100,10 +91,6 @@ for i, k in enumerate(kic_r):
 
     lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_tess, flux_butter, kep_cadence, width=16)
     target_butter.acf(lags, acf)
-
-    # os.chdir('./acfs')
-    # np.savetxt(f'KIC{k}_tess2_acf.csv', np.c_[lags_raw, acf_raw], delimiter=',')
-    # os.chdir('..')
 
     fig3 = target_butter.diagnostic_plot(heading=f'KIC {k}: TESSify + 27d Butterworth filter // McQuillan 14 period = {p_r[i]:.3f}d')
     # figsaver(fig3, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_tess2.png')
