@@ -20,17 +20,23 @@ class Spinner:
         self.time = time
         self.flux = flux
         self.rvar = rvar(flux)
-        self.cdpp = lk.LightCurve(time=time * u.d, flux=flux * u.d).estimate_cdpp(transit_duration=4).value
+        self.cdpp = lk.LightCurve(time=time * u.d, flux=(flux+1) * u.d).estimate_cdpp(transit_duration=4).value
 
     def ls_one_term(self, freq, ps):
         self.freq1 = freq
         self.ps1 = ps
-        argmax1 = np.argmax(ps)
-        self.p_ls1a = 1/freq[argmax1]
-        argmax2 = np.argmax(np.delete(ps, argmax1))
-        self.p_ls1b = 1/np.delete(freq, argmax1)[argmax2]
-        argmax3 = np.argmax(np.delete(ps, [argmax1, argmax2]))
-        self.p_ls1c = 1/np.delete(freq, [argmax1, argmax2])[argmax3]
+        self.ps1_med = np.median(ps)
+        xp, yp = find_all_peaks(freq, ps)
+        self.p_ls1a = 1/xp[0]
+        self.p_ls1b = 1/xp[1]
+        self.p_ls1c = 1/xp[2]
+
+        # argmax1 = np.argmax(ps)
+        # self.p_ls1a = 1/freq[argmax1]
+        # argmax2 = np.argmax(np.delete(ps, argmax1))
+        # self.p_ls1b = 1/np.delete(freq, argmax1)[argmax2]
+        # argmax3 = np.argmax(np.delete(ps, [argmax1, argmax2]))
+        # self.p_ls1c = 1/np.delete(freq, [argmax1, argmax2])[argmax3]
 
         self.time_ls1a_fold, self.flux_ls1a_fold, self.orig_time_ls1a_fold, self.model_ls1a = model(self.time, self.flux, self.p_ls1a)
         self.time_ls1b_fold, self.flux_ls1b_fold, self.orig_time_ls1b_fold, self.model_ls1b = model(self.time, self.flux, self.p_ls1b)
@@ -45,12 +51,18 @@ class Spinner:
     def ls_two_term(self, freq, ps):
         self.freq2 = freq
         self.ps2 = ps
-        argmax1 = np.argmax(ps)
-        self.p_ls2a = 1/freq[argmax1]
-        argmax2 = np.argmax(np.delete(ps, argmax1))
-        self.p_ls2b = 1/np.delete(freq, argmax1)[argmax2]
-        argmax3 = np.argmax(np.delete(ps, [argmax1, argmax2]))
-        self.p_ls2c = 1/np.delete(freq, [argmax1, argmax2])[argmax3]
+        self.ps2_med = np.median(ps)
+        xp, yp = find_all_peaks(freq, ps)
+        self.p_ls2a = 1/xp[0]
+        self.p_ls2b = 1/xp[1]
+        self.p_ls2c = 1/xp[2]
+
+        # argmax1 = np.argmax(ps)
+        # self.p_ls2a = 1/freq[argmax1]
+        # argmax2 = np.argmax(np.delete(ps, argmax1))
+        # self.p_ls2b = 1/np.delete(freq, argmax1)[argmax2]
+        # argmax3 = np.argmax(np.delete(ps, [argmax1, argmax2]))
+        # self.p_ls2c = 1/np.delete(freq, [argmax1, argmax2])[argmax3]
 
         self.time_ls2a_fold, self.flux_ls2a_fold, self.orig_time_ls2a_fold, self.model_ls2a = model(self.time, self.flux, self.p_ls2a)
         self.time_ls2b_fold, self.flux_ls2b_fold, self.orig_time_ls2b_fold, self.model_ls2b = model(self.time, self.flux, self.p_ls2b)
@@ -117,6 +129,8 @@ class Spinner:
         # 1-term LS
         # ax['B'].axvspan(self.p_ls1-line_ls1(self.p_ls1), self.p_ls1+line_ls1(self.p_ls1), color='#86fa20')
         ax['B'].axvline(self.p_ls1a, c='#86fa20', ls='-', lw=10)
+        ax['B'].axvline(self.p_ls1b, c='#20d4fa', ls='-', lw=6, alpha=0.75)
+        ax['B'].axvline(self.p_ls1c, c='#fa20c2', ls='-', lw=3, alpha=0.5)
         ax['B'].plot(1/self.freq1, self.ps1, c='#4d0e02')
         # ax['B'].axvline(self.p_ls1, c='#33ffbe', ls='--')
         ax['B'].set(xlabel='period (d)', ylabel='power', xlim=(0,xmax+10)) # xscale='log', xlim=(min(1/self.freq1), max(1/self.freq1))
@@ -127,7 +141,9 @@ class Spinner:
 
         # 2-term LS
         # ax['D'].axvspan(self.p_ls2-line_ls2(self.p_ls2), self.p_ls2+line_ls2(self.p_ls2), color='#86fa20')
-        ax['D'].axvline(self.p_ls2a, c='#86fa20', ls='-', lw=10) # this line will eventually be uncertainty
+        ax['D'].axvline(self.p_ls2a, c='#86fa20', ls='-', lw=10)
+        ax['D'].axvline(self.p_ls2b, c='#20d4fa', ls='-', lw=6, alpha=0.75)
+        ax['D'].axvline(self.p_ls2c, c='#fa20c2', ls='-', lw=3, alpha=0.5)
         ax['D'].plot(1/self.freq2, self.ps2, c='#4d0e02')
         # ax['D'].axvline(self.p_ls2, c='#33ffbe', ls='--')
         ax['D'].set(xlabel='period (d)', ylabel='power', xlim=(0,xmax+10))
@@ -138,7 +154,11 @@ class Spinner:
 
         # ACF
         # ax['F'].axvspan(self.p_acf-line_acf(self.p_acf), self.p_acf+line_acf(self.p_acf), color='#86fa20')
-        ax['F'].axvline(self.p_acfa, c='#86fa20', ls='-', lw=10) # this line will eventually be uncertainty
+        ax['F'].axvline(self.p_acfa, c='#86fa20', ls='-', lw=10)
+        if self.p_acfb != None:
+            ax['F'].axvline(self.p_acfb, c='#20d4fa', ls='-', lw=6, alpha=0.75)
+        if self.p_acfc != None:
+            ax['F'].axvline(self.p_acfc, c='#fa20c2', ls='-', lw=3, alpha=0.5)
         ax['F'].plot(self.lags, self.acf, c='#4d0e02')
         # ax['F'].axvline(self.p_acf, c='#33ffbe', ls='--')
         ax['F'].set(xlim=(0,xmax+10), xlabel='lags', ylabel='ACF')
@@ -221,7 +241,7 @@ def clip(time, flux, bounds):
     sigma = np.std(flux)
     avg = np.mean(flux)
 
-    outliers = [int(f) for f in flux if f > avg + sigma*bounds or f < avg - sigma*bounds]
+    outliers = [int(index) for f, index in zip(flux, range(len(flux))) if f > avg + sigma*bounds or f < avg - sigma*bounds]
 
     fluxnew = np.delete(flux, outliers)
     timenew = np.delete(time, outliers)
@@ -597,6 +617,7 @@ def filemaker(spinner, kic, p_r, filename=None, filepath='./targetdata'):
         'ACF Period 1st RMS':spinner.rms_ls1a,'ACF Period 1st MAD':spinner.mad_ls1a,
         'ACF Period 2nd RMS':spinner.rms_ls1b,'ACF Period 2nd MAD':spinner.mad_ls1b,
         'ACF Period 3rd RMS':spinner.rms_ls1c,'ACF Period 3rd MAD':spinner.mad_ls1c,
+        'LS median power':spinner.ps1_med,'LS 2-term median power':spinner.ps1_med,
         'Rvar':spinner.rvar,'CDPP':spinner.cdpp}
 
     output_df = pd.DataFrame(output_dict, index=[0])

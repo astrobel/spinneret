@@ -19,7 +19,7 @@ try:
 except FileExistsError:
     pass
 
-rotators = pd.read_csv('S21_train.csv')[:200] # testing on first 200 stars
+rotators = pd.read_csv('S21_train.csv') # testing on first 200 stars
 
 kic_r = rotators['KIC']
 p_r = rotators['Prot']
@@ -62,7 +62,7 @@ for i, k in enumerate(kic_r):
     lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, kep_cadence, width=16)
     target_kep.acf(lags, acf)
 
-    fig1 = target_kep.diagnostic_plot(heading=f'KIC {k}: Kepler Q9 // McQuillan 14 period = {p_r[i]:.3f}d')
+    fig1 = target_kep.diagnostic_plot(heading=f'KIC {k}: Kepler Q9 // Santos 21 period = {p_r[i]:.3f}d')
     # figsaver(fig1, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_kep.png')
     figsaver(fig1, f'KIC{k}_kep.png')
     filemaker(target_kep, k, p_r[i], filename=f'kic{k}_kepler.csv')
@@ -82,7 +82,7 @@ for i, k in enumerate(kic_r):
     lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_tess, flux_tess, kep_cadence, width=16)
     target_tess.acf(lags, acf)
     
-    fig2 = target_tess.diagnostic_plot(heading=f'KIC {k}: TESSify // McQuillan 14 period = {p_r[i]:.3f}d')
+    fig2 = target_tess.diagnostic_plot(heading=f'KIC {k}: TESSify // Santos 21 period = {p_r[i]:.3f}d')
     # figsaver(fig2, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_tess1.png')
     figsaver(fig2, f'KIC{k}_tess1.png')
     filemaker(target_tess, k, p_r[i], filename=f'kic{k}_tess.csv')
@@ -102,7 +102,7 @@ for i, k in enumerate(kic_r):
     lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_tess, flux_butter, kep_cadence, width=16)
     target_butter.acf(lags, acf)
 
-    fig3 = target_butter.diagnostic_plot(heading=f'KIC {k}: TESSify + 27d Butterworth filter // McQuillan 14 period = {p_r[i]:.3f}d')
+    fig3 = target_butter.diagnostic_plot(heading=f'KIC {k}: TESSify + 27d Butterworth filter // Santos 21 period = {p_r[i]:.3f}d')
     # figsaver(fig3, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_tess2.png')
     figsaver(fig3, f'KIC{k}_tess2.png')
     filemaker(target_butter, k, p_r[i], filename=f'kic{k}_final.csv')

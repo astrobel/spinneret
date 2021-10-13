@@ -32,7 +32,7 @@ tess_cadence = 1/24/30 # 2min cadence, for use later
 # butterworth filter for tessify data
 sos = sps.butter(3, (1/27), 'hp', fs=48, output='sos')
 
-k = 1026146
+k = 1027016 #1026146
 i = kic_r.index[kic_r==k][0]
 
 # start = time.time()
@@ -50,7 +50,6 @@ flux = table['PDCSAP_FLUX']
 time, flux = nancleaner2d(time, flux)
 time, flux = clip(time, flux, 3) #3 sigma clip
 flux = lk.LightCurve(time=time, flux=flux).normalize().flux.value - 1
-
 #####
 
 target_kep = Spinner(time, flux)
