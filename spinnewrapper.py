@@ -31,6 +31,7 @@ tess_cadence = 1/24/30 # 2min cadence, for use later
 # butterworth filter for tessify data
 sos = sps.butter(3, (1/27), 'hp', fs=48, output='sos')
 
+nodata = [] # for stars with no data
 
 # rotator sample
 for i, k in enumerate(kic_r):
@@ -43,10 +44,18 @@ for i, k in enumerate(kic_r):
     else:
         openstr = '0' + str(k)
 
-    hdu = fits.open(f'/data/shared_data/kepler/Q9/kplr{openstr}-2011177032512_llc.fits') # Q9, will need changing for TESS data
+    try:
+        hdu = fits.open(f'/data/shared_data/kepler/Q9/kplr{openstr}-2011177032512_llc.fits') # Q9, will need changing for TESS data
+    except FileNotFoundError:
+        print(f'NO DATA: {k}')
+        nodata.append(k)
+        continue
+
     table = hdu[1].data
     time = table['TIME']
     flux = table['PDCSAP_FLUX']
+    hdu.close()
+
     time, flux = nancleaner2d(time, flux)
     time, flux = clip(time, flux, 3) #3 sigma clip
     flux = lk.LightCurve(time=time, flux=flux).normalize().flux.value - 1
@@ -115,3 +124,5 @@ for i, k in enumerate(kic_r):
     # end = time.time()
     # print(end-start)
     # sys.exit()
+
+np.savetxt('noq9.dat', nodata, delimiter='\n')
