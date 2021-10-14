@@ -605,7 +605,7 @@ def filemaker(spinner, kic, p_r, filename=None, filepath='./targetdata'):
         filename = f'{kic}.csv'
 
     output_dict = {'KIC':kic,'Santos Period (d)':p_r,
-        'LS Period 1st peak (d)':spinner.p_ls1a,'LS Period 2nd peak(d)':spinner.p_ls1b,'LS Period 3rd peak (d)':spinner.p_ls1c,
+        'LS Period 1st peak (d)':spinner.p_ls1a,'LS Period 2nd peak (d)':spinner.p_ls1b,'LS Period 3rd peak (d)':spinner.p_ls1c,
         'LS Period 1st RMS':spinner.rms_ls1a,'LS Period 1st MAD':spinner.mad_ls1a,
         'LS Period 2nd RMS':spinner.rms_ls1b,'LS Period 2nd MAD':spinner.mad_ls1b,
         'LS Period 3rd RMS':spinner.rms_ls1c,'LS Period 3rd MAD':spinner.mad_ls1c,
