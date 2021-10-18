@@ -79,8 +79,17 @@ class Spinner:
         self.acf = acff
         self.p_acfa, self.p_acfb, self.p_acfc = get_acf_period(lags, acff)
 
-        self.time_acfa_fold, self.flux_acfa_fold, self.orig_time_acfa_fold, self.model_acfa = model(self.time, self.flux, self.p_acfa)
-        self.rms_acfa = rms(self.model_acfa, self.flux_acfa_fold)
+        if self.p_acfa != None:
+            self.time_acfa_fold, self.flux_acfa_fold, self.orig_time_acfa_fold, self.model_acfa = model(self.time, self.flux, self.p_acfa)
+            self.rms_acfa = rms(self.model_acfa, self.flux_acfa_fold)
+            self.mad_acfa = mad(self.model_acfa, self.flux_acfa_fold)
+        else:
+            self.time_acfa_fold = None
+            self.flux_acfa_fold = None
+            self.orig_time_acfa_fold = None
+            self.model_acfa = None
+            self.rms_acfa = None
+            self.mad_acfa = None
         if self.p_acfb != None:
             self.time_acfb_fold, self.flux_acfb_fold, self.orig_time_acfb_fold, self.model_acfb = model(self.time, self.flux, self.p_acfb)
             self.rms_acfb = rms(self.model_acfb, self.flux_acfb_fold)
@@ -121,7 +130,10 @@ class Spinner:
         fig = plt.figure(constrained_layout=True)
         ax = fig.subplot_mosaic(mosaic)
 
-        xmax = max(self.p_ls1a, self.p_ls2a, self.p_acfa)
+        if self.p_acfa != None:
+            xmax = max(self.p_ls1a, self.p_ls2a, self.p_acfa)
+        else:
+            xmax = max(self.p_ls1a, self.p_ls2a)
 
         ax['A'].scatter(self.time, self.flux, c=self.time, s=3, cmap=lccmap)# '.', c='#4d0e02', ms='3')
         ax['A'].set(xlabel='time (d)', ylabel='normalized flux', title=heading, xlim=(min(self.time), max(self.time)))
@@ -154,18 +166,19 @@ class Spinner:
 
         # ACF
         # ax['F'].axvspan(self.p_acf-line_acf(self.p_acf), self.p_acf+line_acf(self.p_acf), color='#86fa20')
-        ax['F'].axvline(self.p_acfa, c='#86fa20', ls='-', lw=10)
+        if self.p_acfa != None:
+            ax['F'].axvline(self.p_acfa, c='#86fa20', ls='-', lw=10)
+            ax['G'].scatter(self.time_acfa_fold, self.flux_acfa_fold, c=self.orig_time_acfa_fold, s=3, cmap=lccmap)#, '.', c='#ff549b', ms='3')
+            ax['G'].plot(self.time_acfa_fold, self.model_acfa, c='#4d0e02', alpha=0.8, lw=7)
+            ax['G'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'ACF period: {self.p_acfa:.3f}d', xlim=(min(self.time_acfa_fold), max(self.time_acfa_fold)))
         if self.p_acfb != None:
             ax['F'].axvline(self.p_acfb, c='#20d4fa', ls='-', lw=6, alpha=0.75)
         if self.p_acfc != None:
             ax['F'].axvline(self.p_acfc, c='#fa20c2', ls='-', lw=3, alpha=0.5)
+            
         ax['F'].plot(self.lags, self.acf, c='#4d0e02')
         # ax['F'].axvline(self.p_acf, c='#33ffbe', ls='--')
         ax['F'].set(xlim=(0,xmax+10), xlabel='lags', ylabel='ACF')
-
-        ax['G'].scatter(self.time_acfa_fold, self.flux_acfa_fold, c=self.orig_time_acfa_fold, s=3, cmap=lccmap)#, '.', c='#ff549b', ms='3')
-        ax['G'].plot(self.time_acfa_fold, self.model_acfa, c='#4d0e02', alpha=0.8, lw=7)
-        ax['G'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'ACF period: {self.p_acfa:.3f}d', xlim=(min(self.time_acfa_fold), max(self.time_acfa_fold)))
 
         fig.set_size_inches(9,12)
 
@@ -456,8 +469,13 @@ def get_peak_statistics(x, y, sort_by="height"):
                       y[i] and y[i+1] < y[i]])
 
     # extract peak values
-    x_peaks = x[peaks]
-    y_peaks = y[peaks]
+    try:
+        x_peaks = x[peaks]
+        y_peaks = y[peaks]
+    except IndexError:
+        x_peaks = [None]
+        y_peaks = [None]
+        return x_peaks, y_peaks
 
     # sort by height
     if sort_by == "height":
