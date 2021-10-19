@@ -304,13 +304,13 @@ def tessify(time, flux, sector=14, start_modifier=0):
     span1 = end1-start1
     gap = start2-end1
     span2 = end2-start2
-    
+
     keep = np.zeros(time.shape, dtype=bool)
 
     # get cadence numbers for stop and start points
     try:
         newstart1 = 0 + start_modifier
-        newend1 = np.where(np.isclose(time,time[0] + span1))[0][0] + start_modifier
+        newend1 = np.where(np.isclose(time,time[0] + span1,rtol=1e-4))[0][0] + start_modifier
         newstart2 = np.where(np.isclose(time,time[newend1] + gap))[0][0] + start_modifier
         newend2 = np.where(np.isclose(time,time[newstart2] + span2))[0][0] + start_modifier
     except IndexError:
