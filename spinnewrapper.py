@@ -98,17 +98,17 @@ for i, k in enumerate(kic_r):
 
     #####
 
-    flux_butter = sps.sosfilt(sos, flux_tess)
+    time_butter, flux_butter = tessify(time, sps.sosfilt(sos, flux))
 
-    target_butter = Spinner(time_tess, flux_butter)
+    target_butter = Spinner(time_butter, flux_butter)
 
-    freq, ps = ts.LombScargle(time_tess, flux_butter).autopower(nyquist_factor=1, samples_per_peak=30)
+    freq, ps = ts.LombScargle(time_butter, flux_butter).autopower(nyquist_factor=1, samples_per_peak=30)
     target_butter.ls_one_term(freq, ps)
 
-    freq, ps = ts.LombScargle(time_tess, flux_butter, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
+    freq, ps = ts.LombScargle(time_butter, flux_butter, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
     target_butter.ls_two_term(freq, ps)
 
-    lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_tess, flux_butter, kep_cadence, width=16)
+    lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_butter, flux_butter, kep_cadence, width=16)
     target_butter.acf(lags, acf)
 
     fig3 = target_butter.diagnostic_plot(heading=f'KIC {k}: TESSify + 27d Butterworth filter // Santos 21 period = {p_r[i]:.3f}d')
