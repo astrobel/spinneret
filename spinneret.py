@@ -38,15 +38,19 @@ class Spinner:
         # argmax3 = np.argmax(np.delete(ps, [argmax1, argmax2]))
         # self.p_ls1c = 1/np.delete(freq, [argmax1, argmax2])[argmax3]
 
-        self.time_ls1a_fold, self.flux_ls1a_fold, self.orig_time_ls1a_fold, self.model_ls1a = model(self.time, self.flux, self.p_ls1a)
-        self.time_ls1b_fold, self.flux_ls1b_fold, self.orig_time_ls1b_fold, self.model_ls1b = model(self.time, self.flux, self.p_ls1b)
-        self.time_ls1c_fold, self.flux_ls1c_fold, self.orig_time_ls1c_fold, self.model_ls1c = model(self.time, self.flux, self.p_ls1c)
+        self.flux_ls1a_fold, self.model_ls1a = model_for_stats(self.time, self.flux, self.p_ls1a)
+        self.flux_ls1b_fold, self.model_ls1b = model_for_stats(self.time, self.flux, self.p_ls1b)
+        self.flux_ls1c_fold, self.model_ls1c = model_for_stats(self.time, self.flux, self.p_ls1c)
         self.rms_ls1a = rms(self.model_ls1a, self.flux_ls1a_fold)
         self.rms_ls1b = rms(self.model_ls1b, self.flux_ls1b_fold)
         self.rms_ls1c = rms(self.model_ls1c, self.flux_ls1c_fold)
         self.mad_ls1a = mad(self.model_ls1a, self.flux_ls1a_fold)
         self.mad_ls1b = mad(self.model_ls1b, self.flux_ls1b_fold)
         self.mad_ls1c = mad(self.model_ls1c, self.flux_ls1c_fold)
+
+        self.time_ls1a_plot, self.flux_ls1a_plot, self.time_orig_ls1a_plot, self.model_ls1a_plot = model_for_plotting(self.time, self.flux, self.p_ls1a)
+        self.time_ls1b_plot, self.flux_ls1b_plot, self.time_orig_ls1b_plot, self.model_ls1b_plot = model_for_plotting(self.time, self.flux, self.p_ls1b)
+        self.time_ls1c_plot, self.flux_ls1c_plot, self.time_orig_ls1c_plot, self.model_ls1c_plot = model_for_plotting(self.time, self.flux, self.p_ls1c)
 
     def ls_two_term(self, freq, ps):
         self.freq2 = freq
@@ -64,9 +68,9 @@ class Spinner:
         # argmax3 = np.argmax(np.delete(ps, [argmax1, argmax2]))
         # self.p_ls2c = 1/np.delete(freq, [argmax1, argmax2])[argmax3]
 
-        self.time_ls2a_fold, self.flux_ls2a_fold, self.orig_time_ls2a_fold, self.model_ls2a = model(self.time, self.flux, self.p_ls2a)
-        self.time_ls2b_fold, self.flux_ls2b_fold, self.orig_time_ls2b_fold, self.model_ls2b = model(self.time, self.flux, self.p_ls2b)
-        self.time_ls2c_fold, self.flux_ls2c_fold, self.orig_time_ls2c_fold, self.model_ls2c = model(self.time, self.flux, self.p_ls2c)
+        self.flux_ls2a_fold, self.model_ls2a = model_for_stats(self.time, self.flux, self.p_ls2a)
+        self.flux_ls2b_fold, self.model_ls2b = model_for_stats(self.time, self.flux, self.p_ls2b)
+        self.flux_ls2c_fold, self.model_ls2c = model_for_stats(self.time, self.flux, self.p_ls2c)
         self.rms_ls2a = rms(self.model_ls2a, self.flux_ls2a_fold)
         self.rms_ls2b = rms(self.model_ls2b, self.flux_ls2b_fold)
         self.rms_ls2c = rms(self.model_ls2c, self.flux_ls2c_fold)
@@ -74,44 +78,57 @@ class Spinner:
         self.mad_ls2b = mad(self.model_ls2b, self.flux_ls2b_fold)
         self.mad_ls2c = mad(self.model_ls2c, self.flux_ls2c_fold)
 
+        self.time_ls2a_plot, self.flux_ls2a_plot, self.time_orig_ls2a_plot, self.model_ls2a_plot = model_for_plotting(self.time, self.flux, self.p_ls2a)
+        self.time_ls2b_plot, self.flux_ls2b_plot, self.time_orig_ls2b_plot, self.model_ls2b_plot = model_for_plotting(self.time, self.flux, self.p_ls2b)
+        self.time_ls2c_plot, self.flux_ls2c_plot, self.time_orig_ls2c_plot, self.model_ls2c_plot = model_for_plotting(self.time, self.flux, self.p_ls2c)
+
     def acf(self, lags, acff):
         self.lags = lags
         self.acf = acff
         self.p_acfa, self.p_acfb, self.p_acfc = get_acf_period(lags, acff)
 
         if self.p_acfa != None:
-            self.time_acfa_fold, self.flux_acfa_fold, self.orig_time_acfa_fold, self.model_acfa = model(self.time, self.flux, self.p_acfa)
+            self.flux_acfa_fold, self.model_acfa = model_for_stats(self.time, self.flux, self.p_acfa)
             self.rms_acfa = rms(self.model_acfa, self.flux_acfa_fold)
             self.mad_acfa = mad(self.model_acfa, self.flux_acfa_fold)
+            self.time_acfa_plot, self.flux_acfa_plot, self.time_orig_acfa_plot, self.model_acfa_plot = model_for_plotting(self.time, self.flux, self.p_acfa)
         else:
-            self.time_acfa_fold = None
             self.flux_acfa_fold = None
-            self.orig_time_acfa_fold = None
             self.model_acfa = None
             self.rms_acfa = None
             self.mad_acfa = None
+            self.time_acfa_plot = None
+            self.flux_acfa_plot = None
+            self.time_orig_acfa_plot = None
+            self.model_acfa_plot = None
         if self.p_acfb != None:
-            self.time_acfb_fold, self.flux_acfb_fold, self.orig_time_acfb_fold, self.model_acfb = model(self.time, self.flux, self.p_acfb)
+            self.flux_acfb_fold, self.model_acfb = model_for_stats(self.time, self.flux, self.p_acfb)
             self.rms_acfb = rms(self.model_acfb, self.flux_acfb_fold)
             self.mad_acfb = mad(self.model_acfb, self.flux_acfb_fold)
+            self.time_acfb_plot, self.flux_acfb_plot, self.time_orig_acfb_plot, self.model_acfb_plot = model_for_plotting(self.time, self.flux, self.p_acfb)
         else:
-            self.time_acfb_fold = None
             self.flux_acfb_fold = None
-            self.orig_time_acfb_fold = None
             self.model_acfb = None
             self.rms_acfb = None
             self.mad_acfb = None
+            self.time_acfb_plot = None
+            self.flux_acfb_plot = None
+            self.time_orig_acfb_plot = None
+            self.model_acfb_plot = None
         if self.p_acfc != None:
-            self.time_acfc_fold, self.flux_acfc_fold, self.orig_time_acfc_fold, self.model_acfc = model(self.time, self.flux, self.p_acfc)
+            self.flux_acfc_fold, self.model_acfc = model_for_stats(self.time, self.flux, self.p_acfc)
             self.rms_acfc = rms(self.model_acfc, self.flux_acfc_fold)
             self.mad_acfc = mad(self.model_acfc, self.flux_acfc_fold)
+            self.time_acfc_plot, self.flux_acfc_plot, self.time_orig_acfb_plot, self.model_acfc_plot = model_for_plotting(self.time, self.flux, self.p_acfc)
         else:
-            self.time_acfc_fold = None
             self.flux_acfc_fold = None
-            self.orig_time_acfc_fold = None
             self.model_acfc = None
             self.rms_acfc = None
             self.mad_acfc = None
+            self.time_acfc_plot = None
+            self.flux_acfc_plot = None
+            self.time_orig_acfc_plot = None
+            self.model_acfc_plot = None
 
     def diagnostic_plot(self, heading=' '):
 
@@ -147,9 +164,9 @@ class Spinner:
         # ax['B'].axvline(self.p_ls1, c='#33ffbe', ls='--')
         ax['B'].set(xlabel='period (d)', ylabel='power', xlim=(0,xmax+10)) # xscale='log', xlim=(min(1/self.freq1), max(1/self.freq1))
 
-        ax['C'].scatter(self.time_ls1a_fold, self.flux_ls1a_fold, c=self.orig_time_ls1a_fold, s=3, cmap=lccmap)#, '.', c='#4ef5c0', ms='3')
-        ax['C'].plot(self.time_ls1a_fold, self.model_ls1a, c='#4d0e02', alpha=0.8, lw=7)
-        ax['C'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'LS period: {self.p_ls1a:.3f}d', xlim=(min(self.time_ls1a_fold), max(self.time_ls1a_fold)))
+        ax['C'].scatter(self.time_ls1a_plot, self.flux_ls1a_plot, c=self.time_orig_ls1a_plot, s=3, cmap=lccmap)#, '.', c='#4ef5c0', ms='3')
+        ax['C'].plot(self.time_ls1a_plot, self.model_ls1a_plot, c='#4d0e02', alpha=0.8, lw=7)
+        ax['C'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'LS period: {self.p_ls1a:.3f}d', xlim=(min(self.time_ls1a_plot), max(self.time_ls1a_plot)))
 
         # 2-term LS
         # ax['D'].axvspan(self.p_ls2-line_ls2(self.p_ls2), self.p_ls2+line_ls2(self.p_ls2), color='#86fa20')
@@ -160,17 +177,17 @@ class Spinner:
         # ax['D'].axvline(self.p_ls2, c='#33ffbe', ls='--')
         ax['D'].set(xlabel='period (d)', ylabel='power', xlim=(0,xmax+10))
 
-        ax['E'].scatter(self.time_ls2a_fold, self.flux_ls2a_fold, c=self.orig_time_ls2a_fold, s=3, cmap=lccmap)#, '.', c='#4ef5c0', ms='3')
-        ax['E'].plot(self.time_ls2a_fold, self.model_ls2a, c='#4d0e02', alpha=0.8, lw=7)
-        ax['E'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'LS period: {self.p_ls2a:.3f}d', xlim=(min(self.time_ls2a_fold), max(self.time_ls2a_fold)))
+        ax['E'].scatter(self.time_ls2a_plot, self.flux_ls2a_plot, c=self.time_orig_ls2a_plot, s=3, cmap=lccmap)#, '.', c='#4ef5c0', ms='3')
+        ax['E'].plot(self.time_ls2a_plot, self.model_ls2a_plot, c='#4d0e02', alpha=0.8, lw=7)
+        ax['E'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'LS period: {self.p_ls2a:.3f}d', xlim=(min(self.time_ls2a_plot), max(self.time_ls2a_plot)))
 
         # ACF
         # ax['F'].axvspan(self.p_acf-line_acf(self.p_acf), self.p_acf+line_acf(self.p_acf), color='#86fa20')
         if self.p_acfa != None:
             ax['F'].axvline(self.p_acfa, c='#86fa20', ls='-', lw=10)
-            ax['G'].scatter(self.time_acfa_fold, self.flux_acfa_fold, c=self.orig_time_acfa_fold, s=3, cmap=lccmap)#, '.', c='#ff549b', ms='3')
-            ax['G'].plot(self.time_acfa_fold, self.model_acfa, c='#4d0e02', alpha=0.8, lw=7)
-            ax['G'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'ACF period: {self.p_acfa:.3f}d', xlim=(min(self.time_acfa_fold), max(self.time_acfa_fold)))
+            ax['G'].scatter(self.time_acfa_plot, self.flux_acfa_plot, c=self.time_orig_acfa_plot, s=3, cmap=lccmap)#, '.', c='#ff549b', ms='3')
+            ax['G'].plot(self.time_acfa_plot, self.model_acfa_plot, c='#4d0e02', alpha=0.8, lw=7)
+            ax['G'].set(xlabel='phased time (d)', ylabel='normalized flux', title=f'ACF period: {self.p_acfa:.3f}d', xlim=(min(self.time_acfa_plot), max(self.time_acfa_plot)))
         if self.p_acfb != None:
             ax['F'].axvline(self.p_acfb, c='#20d4fa', ls='-', lw=6, alpha=0.75)
         if self.p_acfc != None:
@@ -185,12 +202,20 @@ class Spinner:
         return fig
 
 
-def model(t, f, period, terms=1):
+def model_for_plotting(t, f, period, terms=1):
 
     fold = lk.LightCurve(time=t * u.d, flux=f * u.d).fold(period)
     model = ts.LombScargle(fold.time.value, fold.flux.value, nterms=terms).model(fold.time.value, 1/period)
 
     return fold.time.value, fold.flux.value, fold.time_original.value, model
+
+
+def model_for_stats(t, f, period, terms=1):
+
+    fold = lk.LightCurve(time=t * u.d, flux=f * u.d).fold(period).bin(time_bin_size=period/100).remove_nans()
+    model = ts.LombScargle(fold.time.value, fold.flux.value, nterms=terms).model(fold.time.value, 1/period)
+
+    return fold.flux.value, model
 
 
 def rms(model, measured):

@@ -32,7 +32,7 @@ tess_cadence = 1/24/30 # 2min cadence, for use later
 # butterworth filter for tessify data
 sos = sps.butter(3, (1/27), 'hp', fs=48, output='sos')
 
-k = 1570150 #1027016 #1026146 # 1576970 tol val
+k = 1027016 #1026146 # 1576970 tol val #1570150
 i = kic_r.index[kic_r==k][0]
 
 # start = time.time()
