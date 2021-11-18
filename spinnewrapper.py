@@ -29,7 +29,7 @@ kep_cadence = 1/24/2 # 30min cadence
 tess_cadence = 1/24/30 # 2min cadence, for use later
 
 # butterworth filter for tessify data
-sos = sps.butter(3, (1/27), 'hp', fs=48, output='sos')
+sos = sps.butter(1, (1/27), 'hp', fs=48, output='sos')
 
 nodata = [] # for stars with no data
 
