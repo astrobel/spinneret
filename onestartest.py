@@ -6,7 +6,8 @@ import pandas as pd
 import scipy.signal as sps
 import astropy.timeseries as ts
 from astropy.io import fits
-import os, sys, time
+import os, sys
+import time as systime
 from spinneret import *
 
 try:
@@ -65,7 +66,7 @@ target_kep.acf(lags, acf)
 
 fig1 = target_kep.diagnostic_plot(heading=f'KIC {k}: Kepler Q9 // Santos 21 period = {p_r[i]:.3f}d')
 # figsaver(fig1, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_kep.png')
-figsaver(fig1, f'KIC{k}_kep.png')
+# figsaver(fig1, f'KIC{k}_kep.png')
 filemaker(target_kep, k, p_r[i], filename=f'kic{k}_kepler.csv')
 
 #####
@@ -85,7 +86,7 @@ target_tess.acf(lags, acf)
 
 fig2 = target_tess.diagnostic_plot(heading=f'KIC {k}: TESSify // Santos 21 period = {p_r[i]:.3f}d')
 # figsaver(fig2, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_tess1.png')
-figsaver(fig2, f'KIC{k}_tess1.png')
+# figsaver(fig2, f'KIC{k}_tess1.png')
 filemaker(target_tess, k, p_r[i], filename=f'kic{k}_tess.csv')
 
 #####
@@ -105,7 +106,7 @@ target_butter.acf(lags, acf)
 
 fig3 = target_butter.diagnostic_plot(heading=f'KIC {k}: TESSify + 27d Butterworth filter // Santos 21 period = {p_r[i]:.3f}d')
 # figsaver(fig3, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_tess2.png')
-figsaver(fig3, f'KIC{k}_tess2.png')
+# figsaver(fig3, f'KIC{k}_tess2.png')
 filemaker(target_butter, k, p_r[i], filename=f'kic{k}_final.csv')
 
 # if i == 3:
