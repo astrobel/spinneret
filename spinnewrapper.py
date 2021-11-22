@@ -71,7 +71,7 @@ for i, k in enumerate(kic_r):
     lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, kep_cadence, width=16)
     target_kep.acf(lags, acf)
 
-    fig1 = target_kep.diagnostic_plot(heading=f'KIC {k}: Kepler Q9 // Santos 21 period = {p_r[i]:.3f}d')
+    # fig1 = target_kep.diagnostic_plot(heading=f'KIC {k}: Kepler Q9 // Santos 21 period = {p_r[i]:.3f}d')
     # figsaver(fig1, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_kep.png')
     # figsaver(fig1, f'KIC{k}_kep.png')
     filemaker(target_kep, k, p_r[i], filename=f'kic{k}_kepler.csv')
@@ -91,7 +91,7 @@ for i, k in enumerate(kic_r):
     lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_tess, flux_tess, kep_cadence, width=16)
     target_tess.acf(lags, acf)
     
-    fig2 = target_tess.diagnostic_plot(heading=f'KIC {k}: TESSify // Santos 21 period = {p_r[i]:.3f}d')
+    # fig2 = target_tess.diagnostic_plot(heading=f'KIC {k}: TESSify // Santos 21 period = {p_r[i]:.3f}d')
     # figsaver(fig2, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_tess1.png')
     # figsaver(fig2, f'KIC{k}_tess1.png')
     filemaker(target_tess, k, p_r[i], filename=f'kic{k}_tess.csv')
