@@ -321,31 +321,19 @@ def tessify(time, flux, sector=14, start_modifier=0):
     sectors = tess_orbits['Sector']
     starts = tess_orbits['Start TJD']
     ends = tess_orbits['End TJD']
-    
-    start1 = starts[sectors==sector].iloc[0]
-    end1 = ends[sectors==sector].iloc[0]
-    start2 = starts[sectors==sector].iloc[1]
-    end2 = ends[sectors==sector].iloc[1]
-    span1 = end1-start1
-    gap = start2-end1
-    span2 = end2-start2
-
-    keep = np.zeros(time.shape, dtype=bool)
 
     # get cadence numbers for stop and start points
     try:
-        newstart1 = 0 + start_modifier
-        newend1 = np.where(np.isclose(time,time[0] + span1,rtol=1e-4))[0][0] + start_modifier
-        newstart2 = np.where(np.isclose(time,time[newend1] + gap))[0][0] + start_modifier
-        newend2 = np.where(np.isclose(time,time[newstart2] + span2))[0][0] + start_modifier
+        correction = starts[sectors==sector].iloc[0] - time[0+start_modifier]
+        start1 = time[0+start_modifier]
+        end1 = ends[sectors==sector].iloc[0] - correction
+        start2 = starts[sectors==sector].iloc[1] - correction
+        end2 = ends[sectors==sector].iloc[1] - correction
     except IndexError:
         raise IndexError('Data selected is out of range. Try using a lower start_modifier')
     
-    keep[newstart1:newend1+1] = True
-    keep[newstart2:newend2+1] = True
-    
-    timenew = time[keep==True]
-    fluxnew = flux[keep==True]
+    timenew = np.r_[time[np.where((time >= start1) & (time <= end1))], time[np.where((time >= start2) & (time <= end2))]]
+    fluxnew = np.r_[flux[np.where((time >= start1) & (time <= end1))], flux[np.where((time >= start2) & (time <= end2))]]
     
     return timenew, fluxnew
 
