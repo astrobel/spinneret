@@ -192,7 +192,7 @@ class Spinner:
             ax['F'].axvline(self.p_acfb, c='#20d4fa', ls='-', lw=6, alpha=0.75)
         if self.p_acfc != None:
             ax['F'].axvline(self.p_acfc, c='#fa20c2', ls='-', lw=3, alpha=0.5)
-            
+
         ax['F'].plot(self.lags, self.acf, c='#4d0e02')
         # ax['F'].axvline(self.p_acf, c='#33ffbe', ls='--')
         ax['F'].set(xlim=(0,xmax+10), xlabel='lags', ylabel='ACF')
@@ -225,7 +225,7 @@ def rms(model, measured):
     Args:
         model (Numpy array): model flux measurements
         measured (Numpy array): light curve flux
-    
+
     Returns:
         rms (float): RMS error between model and LC
     """
@@ -240,7 +240,7 @@ def mad(model, measured):
     Args:
         model (Numpy array): model flux measurements
         measured (Numpy array): light curve flux
-    
+
     Returns:
         mad (float): MAD error between model and LC
     """
@@ -301,8 +301,8 @@ def nancleaner2d(time, flux):
 
 def tessify(time, flux, sector=14, start_modifier=0):
     """
-    Takes a single quarter of Kepler time series data and trims it to match 
-    the length and shape of a TESS time series. 
+    Takes a single quarter of Kepler time series data and trims it to match
+    the length and shape of a TESS time series.
 
     Args:
         time (Numpy array): single Kepler quarter time series
@@ -315,7 +315,7 @@ def tessify(time, flux, sector=14, start_modifier=0):
         timenew (Numpy array): single TESS-like sector time series
         fluxnew (Numpy array): single TESS-like sector flux series
     """
-    
+
     # get tess orbit timing
     tess_orbits = pd.read_csv('https://tess.mit.edu/wp-content/uploads/orbit_times_20201013_1338.csv', skiprows=5)
     sectors = tess_orbits['Sector']
@@ -331,10 +331,10 @@ def tessify(time, flux, sector=14, start_modifier=0):
         end2 = ends[sectors==sector].iloc[1] - correction
     except IndexError:
         raise IndexError('Data selected is out of range. Try using a lower start_modifier')
-    
-    timenew = np.r_[time[np.where((time >= start1) & (time <= end1))], time[np.where((time >= start2) & (time <= end2))]]
-    fluxnew = np.r_[flux[np.where((time >= start1) & (time <= end1))], flux[np.where((time >= start2) & (time <= end2))]]
-    
+
+    timenew = np.r_[time[(time >= start1) & (time <= end1)], time[(time >= start2) & (time <= end2)]]
+    fluxnew = np.r_[flux[(time >= start1) & (time <= end1)], flux[(time >= start2) & (time <= end2)]]
+
     return timenew, fluxnew
 
 
@@ -394,7 +394,7 @@ def dan_acf(x, axis=0, fast=False):
     acf = np.fft.ifft(f * np.conjugate(f), axis=axis)[tuple(m)].real
     m[axis] = 0
     return acf / acf[m]
-    
+
 
 def simple_acf(x_gaps, y_gaps, interval, smooth=9, width=16, window_length=99,
                polyorder=3, interp_style="zero"):
@@ -541,11 +541,11 @@ def find_all_peaks(x, y):
     # extract peak values
     x_peaks = x[peaks]
     y_peaks = y[peaks]
-    
+
     # sort by height
     inds = np.argsort(y_peaks)
     x_peaks, y_peaks = x_peaks[inds][::-1], y_peaks[inds][::-1]
-    
+
     return x_peaks, y_peaks
 
 
@@ -554,29 +554,29 @@ def find_peaks_at_integers(period, peak_positions):
     *** FROM STARSPOT ***
     A function to identify the positions of the peaks that lie within
     10% of an integer multiple of the period.
-    
+
     Args:
         period (float): The best estimate of the rotation period
         peak_positions (array): an array of the times of peaks in an ACF
-        
+
     Returns:
         good_peaks (array): The positions of peaks near integer multiples.
-        errs (array): an array containing the differences between the peak positions 
+        errs (array): an array containing the differences between the peak positions
             and the integer multiple of the period
     """
 
     # Calculate the modulus
     mods = peak_positions % period
-    
+
     # Shift mods to make more Gaussian
     corrected_mods = mods*1
     corrected_mods[corrected_mods > .5*period] -= period
-    
+
     # Find peaks within 10% of an integer multiple of the period
     good = abs(corrected_mods) < .1*period
     good_peaks = peak_positions[good]
     errs = abs(corrected_mods)[good]
-    
+
     return good_peaks, errs
 
 
@@ -584,12 +584,12 @@ def fit_line_to_good_peaks(good_peaks, errs):
     """
     *** FROM STARSPOT ***
     A function that fits a line to the peak positions and pulls out a period and an uncertainty.
-    
+
     Args:
         good_peaks (array): The positions of peaks within 10% of an integer multiple in an ACF
-        errs (array): an array containing the differences between the peak positions 
+        errs (array): an array containing the differences between the peak positions
             and the integer multiple of the period
-            
+
     Returns:
         The period and uncertainty
     """

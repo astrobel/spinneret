@@ -33,7 +33,7 @@ tess_cadence = 1/24/30 # 2min cadence, for use later
 # butterworth filter for tessify data
 sos = sps.butter(3, (1/27), 'hp', fs=48, output='sos')
 
-k = 1027016 #1026146 # 1576970 tol val #1570150
+k = 1570150 #1576970 #tol val # # 1027016 # 1026146
 i = kic_r.index[kic_r==k][0]
 
 # start = time.time()
@@ -86,28 +86,28 @@ target_tess.acf(lags, acf)
 
 fig2 = target_tess.diagnostic_plot(heading=f'KIC {k}: TESSify // Santos 21 period = {p_r[i]:.3f}d')
 # figsaver(fig2, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_tess1.png')
-# figsaver(fig2, f'KIC{k}_tess1.png')
+figsaver(fig2, f'KIC{k}_tess1.png')
 filemaker(target_tess, k, p_r[i], filename=f'kic{k}_tess.csv')
 
 #####
 
-time_butter, flux_butter = tessify(time, sps.sosfilt(sos, flux))
-
-target_butter = Spinner(time_butter, flux_butter)
-
-freq, ps = ts.LombScargle(time_butter, flux_butter).autopower(nyquist_factor=1, samples_per_peak=30)
-target_butter.ls_one_term(freq, ps)
-
-freq, ps = ts.LombScargle(time_butter, flux_butter, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
-target_butter.ls_two_term(freq, ps)
-
-lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_butter, flux_butter, kep_cadence, width=16)
-target_butter.acf(lags, acf)
-
-fig3 = target_butter.diagnostic_plot(heading=f'KIC {k}: TESSify + 27d Butterworth filter // Santos 21 period = {p_r[i]:.3f}d')
-# figsaver(fig3, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_tess2.png')
-# figsaver(fig3, f'KIC{k}_tess2.png')
-filemaker(target_butter, k, p_r[i], filename=f'kic{k}_final.csv')
+# time_butter, flux_butter = tessify(time, sps.sosfilt(sos, flux))
+#
+# target_butter = Spinner(time_butter, flux_butter)
+#
+# freq, ps = ts.LombScargle(time_butter, flux_butter).autopower(nyquist_factor=1, samples_per_peak=30)
+# target_butter.ls_one_term(freq, ps)
+#
+# freq, ps = ts.LombScargle(time_butter, flux_butter, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
+# target_butter.ls_two_term(freq, ps)
+#
+# lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_butter, flux_butter, kep_cadence, width=16)
+# target_butter.acf(lags, acf)
+#
+# fig3 = target_butter.diagnostic_plot(heading=f'KIC {k}: TESSify + 27d Butterworth filter // Santos 21 period = {p_r[i]:.3f}d')
+# # figsaver(fig3, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_tess2.png')
+# # figsaver(fig3, f'KIC{k}_tess2.png')
+# filemaker(target_butter, k, p_r[i], filename=f'kic{k}_final.csv')
 
 # if i == 3:
 #     sys.exit()
