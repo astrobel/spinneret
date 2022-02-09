@@ -72,8 +72,7 @@ else:
     openstr = '0' + str(tid)
 
 try:
-    # hdu = fits.open(f'/data/shared_data/kepler/Q9/kplr{openstr}-2011177032512_llc.fits') # Q9, will need changing for TESS data and when i add other quarters
-    hdu = fits.open(f'kplr{openstr}-2011177032512_llc.fits') # TEMP ONLY
+    hdu = fits.open(f'/data/shared_data/kepler/Q9/kplr{openstr}-2011177032512_llc.fits') # Q9, will need changing for TESS data and when i add other quarters
 except FileNotFoundError:
     print(f'NO DATA: {tid}')
     sys.exit()
