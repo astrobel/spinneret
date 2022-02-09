@@ -30,13 +30,9 @@ class Spinner:
         self.p_ls1a = 1/xp[0]
         self.p_ls1b = 1/xp[1]
         self.p_ls1c = 1/xp[2]
-
-        # argmax1 = np.argmax(ps)
-        # self.p_ls1a = 1/freq[argmax1]
-        # argmax2 = np.argmax(np.delete(ps, argmax1))
-        # self.p_ls1b = 1/np.delete(freq, argmax1)[argmax2]
-        # argmax3 = np.argmax(np.delete(ps, [argmax1, argmax2]))
-        # self.p_ls1c = 1/np.delete(freq, [argmax1, argmax2])[argmax3]
+        self.a_ls1a = yp[0]
+        self.a_ls1b = yp[1]
+        self.a_ls1c = yp[2]
 
         self.flux_ls1a_fold, self.model_ls1a = model_for_stats(self.time, self.flux, self.p_ls1a)
         self.flux_ls1b_fold, self.model_ls1b = model_for_stats(self.time, self.flux, self.p_ls1b)
@@ -60,13 +56,9 @@ class Spinner:
         self.p_ls2a = 1/xp[0]
         self.p_ls2b = 1/xp[1]
         self.p_ls2c = 1/xp[2]
-
-        # argmax1 = np.argmax(ps)
-        # self.p_ls2a = 1/freq[argmax1]
-        # argmax2 = np.argmax(np.delete(ps, argmax1))
-        # self.p_ls2b = 1/np.delete(freq, argmax1)[argmax2]
-        # argmax3 = np.argmax(np.delete(ps, [argmax1, argmax2]))
-        # self.p_ls2c = 1/np.delete(freq, [argmax1, argmax2])[argmax3]
+        self.a_ls2a = yp[0]
+        self.a_ls2b = yp[1]
+        self.a_ls2c = yp[2]
 
         self.flux_ls2a_fold, self.model_ls2a = model_for_stats(self.time, self.flux, self.p_ls2a)
         self.flux_ls2b_fold, self.model_ls2b = model_for_stats(self.time, self.flux, self.p_ls2b)
@@ -85,7 +77,7 @@ class Spinner:
     def acf(self, lags, acff):
         self.lags = lags
         self.acf = acff
-        self.p_acfa, self.p_acfb, self.p_acfc = get_acf_period(lags, acff)
+        self.p_acfa, self.p_acfb, self.p_acfc, self.a_acfa, self.a_acfb, self.a_acfc = get_acf_period(lags, acff)
 
         if self.p_acfa != None:
             self.flux_acfa_fold, self.model_acfa = model_for_stats(self.time, self.flux, self.p_acfa)
@@ -524,10 +516,12 @@ def get_acf_period(lags, acf, cutoff=0):
                                          sort_by="height")
     if len(xpeaks) == 1:
         xpeaks = np.r_[xpeaks, None, None]
+        ypeaks = np.r_[ypeaks, None, None]
     elif len(xpeaks) == 2:
         xpeaks = np.r_[xpeaks, None]
+        ypeaks = np.r_[ypeaks, None]
 
-    return xpeaks[0], xpeaks[1], xpeaks[2] # this is the acf period
+    return xpeaks[0], xpeaks[1], xpeaks[2], ypeaks[0], ypeaks[1], ypeaks[2]
 
 
 def find_all_peaks(x, y):
@@ -637,14 +631,17 @@ def filemaker(spinner, kic, p_r, filename=None, filepath='./targetdata'):
 
     output_dict = {'KIC':kic,'Santos Period (d)':p_r,
         'LS Period 1st peak (d)':spinner.p_ls1a,'LS Period 2nd peak (d)':spinner.p_ls1b,'LS Period 3rd peak (d)':spinner.p_ls1c,
+        'LS Period 1st amplitude':spinner.a_ls1a,'LS Period 2nd amplitude':spinner.a_ls1b,'LS Period 3rd amplitude':spinner.a_ls1c,
         'LS Period 1st RMS':spinner.rms_ls1a,'LS Period 1st MAD':spinner.mad_ls1a,
         'LS Period 2nd RMS':spinner.rms_ls1b,'LS Period 2nd MAD':spinner.mad_ls1b,
         'LS Period 3rd RMS':spinner.rms_ls1c,'LS Period 3rd MAD':spinner.mad_ls1c,
         'LS 2-term Period 1st peak (d)':spinner.p_ls2a,'LS 2-term Period 2nd peak (d)':spinner.p_ls2b,'LS 2-term Period 3rd peak (d)':spinner.p_ls2c,
+        'LS 2-term Period 1st amplitude':spinner.a_ls2a,'LS 2-term Period 2nd amplitude':spinner.a_ls2b,'LS 2-term Period 3rd amplitude':spinner.a_ls2c,
         'LS 2-term Period 1st RMS':spinner.rms_ls1a,'LS 2-term Period 1st MAD':spinner.mad_ls1a,
         'LS 2-term Period 2nd RMS':spinner.rms_ls1b,'LS 2-term Period 2nd MAD':spinner.mad_ls1b,
         'LS 2-term Period 3rd RMS':spinner.rms_ls1c,'LS 2-term Period 3rd MAD':spinner.mad_ls1c,
         'ACF Period 1st peak (d)':spinner.p_acfa,'ACF Period 2nd peak (d)':spinner.p_acfb,'ACF Period 3rd peak (d)':spinner.p_acfc,
+        'ACF Period 1st amplitude':spinner.a_acfa,'ACF Period 2nd amplitude':spinner.a_acfb,'ACF Period 3rd amplitude':spinner.a_acfc,
         'ACF Period 1st RMS':spinner.rms_ls1a,'ACF Period 1st MAD':spinner.mad_ls1a,
         'ACF Period 2nd RMS':spinner.rms_ls1b,'ACF Period 2nd MAD':spinner.mad_ls1b,
         'ACF Period 3rd RMS':spinner.rms_ls1c,'ACF Period 3rd MAD':spinner.mad_ls1c,

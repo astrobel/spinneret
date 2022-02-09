@@ -15,6 +15,7 @@ parser.add_argument('-s', '--rfset', required=False, default='test', type=str, c
 parser.add_argument('-r', '--rotating', required=False, default='yes', type=str, choices=['yes', 'no', 'unknown'], help='Is the star rotating?')
 parser.add_argument('-m', '--mission', required=False, default='TESS', type=str, choices=['TESS', 'TESSlike', 'Kepler'], help='TESS(like) sector or Kepler quarter?')
 parser.add_argument('-n', '--number', required=True, type=int, help='TESS sector or Kepler quarter; enter 14 for TESSlike Kepler data')
+# needs an on/off switch for figures, defaulting to off
 
 params = parser.parse_args()
 
@@ -59,33 +60,33 @@ elif forestset == 'validate':
     directorymaker('validatedata')
     targets = pd.read_csv(f'S21{rot_for_file}_test.csv')
 
-p_r = targets['Prot'].loc[targets['KIC']==k] # will need changing when i have targets with TICs
+p_r = targets['Prot'].loc[targets['KIC'].values==tid].values[0] # will need changing when i have targets with TICs
 
 # start = time.time()
 
-if len(str(k)) == 6: # this will also need a TIC version eventually
-    openstr = '000' + str(k)
-elif len(str(k)) == 7:
-    openstr = '00' + str(k)
+if len(str(tid)) == 6: # this will also need a TIC version eventually
+    openstr = '000' + str(tid)
+elif len(str(tid)) == 7:
+    openstr = '00' + str(tid)
 else:
-    openstr = '0' + str(k)
+    openstr = '0' + str(tid)
 
 try:
-    hdu = fits.open(f'/data/shared_data/kepler/Q9/kplr{openstr}-2011177032512_llc.fits') # Q9, will need changing for TESS data and when i add other quarters
+    # hdu = fits.open(f'/data/shared_data/kepler/Q9/kplr{openstr}-2011177032512_llc.fits') # Q9, will need changing for TESS data and when i add other quarters
+    hdu = fits.open(f'kplr{openstr}-2011177032512_llc.fits') # TEMP ONLY
 except FileNotFoundError:
-    print(f'NO DATA: {k}')
-    nodata.append(k)
-    continue
+    print(f'NO DATA: {tid}')
+    sys.exit()
 
 table = hdu[1].data
 time = table['TIME']
 flux = table['PDCSAP_FLUX']
 hdu.close()
 
-if mission = 'TESSlike':
+if mission == 'TESSlike':
     time, flux = tessify(time, flux)
 
-maxdays = 1/(time[-1] - time[0])
+minfreq = 1/(time[-1] - time[0])
 
 time, flux = nancleaner2d(time, flux)
 time, flux = clip(time, flux, 3) #3 sigma clip
@@ -93,19 +94,19 @@ flux = lk.LightCurve(time=time, flux=flux).normalize().flux.value - 1
 
 target_kep = Spinner(time, flux)
 
-freq, ps = ts.LombScargle(time, flux).autopower(nyquist_factor=1, samples_per_peak=50, maximum_frequency=maxdays)
+freq, ps = ts.LombScargle(time, flux).autopower(nyquist_factor=1, samples_per_peak=50, minimum_frequency=minfreq)
 target_kep.ls_one_term(freq, ps)
 
-freq, ps = ts.LombScargle(time, flux, nterms=2).autopower(nyquist_factor=1, samples_per_peak=50, maximum_frequency=maxdays)
+freq, ps = ts.LombScargle(time, flux, nterms=2).autopower(nyquist_factor=1, samples_per_peak=50, minimum_frequency=minfreq)
 target_kep.ls_two_term(freq, ps)
 
-lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, kep_cadence, width=16)
+lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, cadence, width=16)
 target_kep.acf(lags, acf)
 
-# fig1 = target_kep.diagnostic_plot(heading=f'KIC {k}: Kepler Q9 // Santos 21 period = {p_r[i]:.3f}d')
+fig1 = target_kep.diagnostic_plot(heading=f'KIC {tid}: Kepler Q9 // Santos 21 period = {p_r:.3f}d')
 # figsaver(fig1, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_kep.png')
-# figsaver(fig1, f'KIC{k}_kep.png')
-filemaker(target_kep, k, p_r[i], filename=f'{id_prepend}{tid}_{file_append}.csv')
+figsaver(fig1, f'KIC{tid}_{file_append}.png')
+filemaker(target_kep, tid, p_r, filename=f'{id_prepend}{tid}_{file_append}.csv')
 
 print(f'{tid} done')
 
