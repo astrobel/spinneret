@@ -51,14 +51,16 @@ elif mission == 'TESS':
 
 directorymaker('figs')
 if forestset == 'test':
-    directorymaker('testsetdata')
+    dir_name = 'testsetdata'
     targets = pd.read_csv(f'S21{rot_for_file}_test.csv')
 elif forestset == 'train':
-    directorymaker('targetdata')
+    dir_name = 'targetdata'
     targets = pd.read_csv(f'S21{rot_for_file}_train.csv')
 elif forestset == 'validate':
-    directorymaker('validatedata')
+    dir_name = 'validatedata'
     targets = pd.read_csv(f'S21{rot_for_file}_test.csv')
+
+directorymaker('dir_name')
 
 p_r = targets['Prot'].loc[targets['KIC'].values==tid].values[0] # will need changing when i have targets with TICs
 
@@ -105,7 +107,7 @@ target_kep.acf(lags, acf)
 fig1 = target_kep.diagnostic_plot(heading=f'KIC {tid}: Kepler Q9 // Santos 21 period = {p_r:.3f}d')
 # figsaver(fig1, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_kep.png')
 figsaver(fig1, f'KIC{tid}_{file_append}.png')
-filemaker(target_kep, tid, p_r, filename=f'{id_prepend}{tid}_{file_append}.csv')
+filemaker(target_kep, tid, p_r, filename=f'{id_prepend}{tid}_{file_append}.csv', filepath=f'./{dir_name}')
 
 print(f'{tid} done')
 
