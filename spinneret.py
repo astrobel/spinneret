@@ -645,7 +645,7 @@ def filemaker(spinner, kic, p_r, filename=None, filepath='./targetdata'):
         'ACF Period 1st RMS':spinner.rms_ls1a,'ACF Period 1st MAD':spinner.mad_ls1a,
         'ACF Period 2nd RMS':spinner.rms_ls1b,'ACF Period 2nd MAD':spinner.mad_ls1b,
         'ACF Period 3rd RMS':spinner.rms_ls1c,'ACF Period 3rd MAD':spinner.mad_ls1c,
-        'LS median power':spinner.ps1_med,'LS 2-term median power':spinner.ps1_med,
+        'LS median power':spinner.ps1_med,'LS 2-term median power':spinner.ps2_med,
         'Rvar':spinner.rvar,'CDPP':spinner.cdpp}
 
     output_df = pd.DataFrame(output_dict, index=[0])
