@@ -20,7 +20,7 @@ try:
 except FileExistsError:
     pass
 
-rotators = pd.read_csv('S21_train.csv')
+rotators = pd.read_csv('S21r_train.csv')
 # control = pd.read_csv('M14nonrotators.csv')
 
 kic_r = rotators['KIC']
@@ -33,7 +33,7 @@ tess_cadence = 1/24/30 # 2min cadence, for use later
 # butterworth filter for tessify data
 sos = sps.butter(3, (1/27), 'hp', fs=48, output='sos')
 
-k = 1570150 #1576970 #tol val # # 1027016 # 1026146
+k = 1570150 # 1576970 # 1027016 # 1026146
 i = kic_r.index[kic_r==k][0]
 
 # start = time.time()
@@ -53,32 +53,33 @@ time, flux = clip(time, flux, 3) #3 sigma clip
 flux = lk.LightCurve(time=time, flux=flux).normalize().flux.value - 1
 #####
 
-target_kep = Spinner(time, flux)
+# target_kep = Spinner(time, flux)
+#
+# freq, ps = ts.LombScargle(time, flux).autopower(nyquist_factor=1, samples_per_peak=30)
+# target_kep.ls_one_term(freq, ps)
+#
+# freq, ps = ts.LombScargle(time, flux, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
+# target_kep.ls_two_term(freq, ps)
+#
+# lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, kep_cadence, width=16)
+# target_kep.acf(lags, acf)
 
-freq, ps = ts.LombScargle(time, flux).autopower(nyquist_factor=1, samples_per_peak=30)
-target_kep.ls_one_term(freq, ps)
-
-freq, ps = ts.LombScargle(time, flux, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
-target_kep.ls_two_term(freq, ps)
-
-lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, kep_cadence, width=16)
-target_kep.acf(lags, acf)
-
-fig1 = target_kep.diagnostic_plot(heading=f'KIC {k}: Kepler Q9 // Santos 21 period = {p_r[i]:.3f}d')
+# fig1 = target_kep.diagnostic_plot(heading=f'KIC {k}: Kepler Q9 // Santos 21 period = {p_r[i]:.3f}d')
 # figsaver(fig1, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_kep.png')
 # figsaver(fig1, f'KIC{k}_kep.png')
-filemaker(target_kep, k, p_r[i], filename=f'kic{k}_kepler.csv')
+# filemaker(target_kep, k, p_r[i], filename=f'kic{k}_kepler.csv')
 
 #####
 
 time_tess, flux_tess = tessify(time, flux)
+maxdays = 1/(time_tess[-1] - time_tess[0])
 
 target_tess = Spinner(time_tess, flux_tess)
 
-freq, ps = ts.LombScargle(time_tess, flux_tess).autopower(nyquist_factor=1, samples_per_peak=30)
+freq, ps = ts.LombScargle(time_tess, flux_tess).autopower(nyquist_factor=1, samples_per_peak=50)
 target_tess.ls_one_term(freq, ps)
 
-freq, ps = ts.LombScargle(time_tess, flux_tess, nterms=2).autopower(nyquist_factor=1, samples_per_peak=30)
+freq, ps = ts.LombScargle(time_tess, flux_tess, nterms=2).autopower(nyquist_factor=1, samples_per_peak=50)
 target_tess.ls_two_term(freq, ps)
 
 lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time_tess, flux_tess, kep_cadence, width=16)
