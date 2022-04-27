@@ -629,7 +629,7 @@ def filemaker(spinner, kic, p_r, filename=None, filepath='./targetdata'):
     if filename == None:
         filename = f'{kic}.csv'
 
-    output_dict = {'KIC':kic,'Santos Period (d)':p_r,
+    output_dict = {'KIC':kic,'Ground Truth Period (d)':p_r,
         'LS Period 1st peak (d)':spinner.p_ls1a,'LS Period 2nd peak (d)':spinner.p_ls1b,'LS Period 3rd peak (d)':spinner.p_ls1c,
         'LS Period 1st amplitude':spinner.a_ls1a,'LS Period 2nd amplitude':spinner.a_ls1b,'LS Period 3rd amplitude':spinner.a_ls1c,
         'LS Period 1st RMS':spinner.rms_ls1a,'LS Period 1st MAD':spinner.mad_ls1a,
