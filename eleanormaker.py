@@ -42,7 +42,7 @@ for i in range(prime_sample.shape[0]):
         flux = data.corr_flux[data.quality==0]
 
         os.chdir(dir_name)
-        np.savetxt(f'tic{tid}_{file_append}_lc.dat', np.c_[time, flux], delimiter=',')
+        np.savetxt(f'tic{tid}_s{sec}_{file_append}_lc.dat', np.c_[time, flux], delimiter=',')
         os.chdir('..')
 
         minfreq = 1/(time[-1] - time[0])
@@ -64,7 +64,7 @@ for i in range(prime_sample.shape[0]):
 
         fig1 = target.diagnostic_plot(heading=f'TIC {tid} s{sec} // KELT period: {gtp:.2f}d')
         figsaver(fig1, f'TIC{tid}_{file_append}.png')
-        filemaker(target, tid, gtp, filename=f'{id_prepend}{tid}_{file_append}.csv', filepath=f'./{dir_name}')
+        filemaker(target, tid, gtp, filename=f'{id_prepend}{tid}_s{sec}_{file_append}.csv', filepath=f'./{dir_name}')
 
         print(f'{tid} done')
 
