@@ -24,7 +24,7 @@ directorymaker('figs')
 dir_name = 'kelt_eleanor'
 directorymaker(dir_name)
 
-prime_sample = np.loadtxt('prime_test.dat', delimiter=',')
+prime_sample = np.loadtxt('prime_sample.dat', delimiter=',')
 
 for i in range(prime_sample.shape[0]):
 
