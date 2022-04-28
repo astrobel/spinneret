@@ -68,7 +68,7 @@ for i in range(prime_sample.shape[0]):
 
         print(f'{tid} done')
 
-    except eleanor.utils.SearchError:
+    except (eleanor.utils.SearchError, IndexError):
         failed.append([tid, sec])
         print(f'{tid} failed')
 
