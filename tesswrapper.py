@@ -27,12 +27,6 @@ forestset = params.rfset
 rotating = params.rotating
 mission = params.mission
 
-def directorymaker(dirname=f'untitled{time.time():.0f}'):
-    try:
-        os.mkdir(dirname)
-    except FileExistsError:
-        pass
-
 id_prepend = 'tic'
 file_append = 'tess'
 cadence = 1/24/30 # 2min

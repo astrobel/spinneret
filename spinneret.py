@@ -16,11 +16,13 @@ lccmap = mpl.colors.ListedColormap(C)
 
 class Spinner:
 
-    def __init__(self, time, flux):
+    def __init__(self, time, flux, teff=None, logg=None):
         self.time = time
         self.flux = flux
         self.rvar = rvar(flux)
         self.cdpp = lk.LightCurve(time=time * u.d, flux=(flux+1) * u.d).estimate_cdpp(transit_duration=4).value
+        self.teff = teff
+        self.logg = logg
 
     def ls_one_term(self, freq, ps):
         self.freq1 = freq
@@ -620,16 +622,16 @@ def figsaver(fig, filename, filepath='./figs'):
     plt.close(fig)
 
 
-def filemaker(spinner, kic, p_r, filename=None, filepath='./targetdata'):
+def filemaker(spinner, id, p_r, filename=None, filepath='./targetdata'):
     """
     Args:
         spinner: Spinner object
     """
 
     if filename == None:
-        filename = f'{kic}.csv'
+        filename = f'{id}.csv'
 
-    output_dict = {'KIC':kic,'Ground Truth Period (d)':p_r,
+    output_dict = {'ID':id,'Ground Truth Period (d)':p_r,
         'LS Period 1st peak (d)':spinner.p_ls1a,'LS Period 2nd peak (d)':spinner.p_ls1b,'LS Period 3rd peak (d)':spinner.p_ls1c,
         'LS Period 1st amplitude':spinner.a_ls1a,'LS Period 2nd amplitude':spinner.a_ls1b,'LS Period 3rd amplitude':spinner.a_ls1c,
         'LS Period 1st RMS':spinner.rms_ls1a,'LS Period 1st MAD':spinner.mad_ls1a,
@@ -646,7 +648,7 @@ def filemaker(spinner, kic, p_r, filename=None, filepath='./targetdata'):
         'ACF Period 2nd RMS':spinner.rms_ls1b,'ACF Period 2nd MAD':spinner.mad_ls1b,
         'ACF Period 3rd RMS':spinner.rms_ls1c,'ACF Period 3rd MAD':spinner.mad_ls1c,
         'LS median power':spinner.ps1_med,'LS 2-term median power':spinner.ps2_med,
-        'Rvar':spinner.rvar,'CDPP':spinner.cdpp}
+        'Rvar':spinner.rvar,'CDPP':spinner.cdpp, 'Teff':spinner.teff, 'logg':spinner.logg}
 
     output_df = pd.DataFrame(output_dict, index=[0])
 
@@ -654,3 +656,9 @@ def filemaker(spinner, kic, p_r, filename=None, filepath='./targetdata'):
     os.chdir(filepath)
     output_df.to_csv(filename)
     os.chdir(cwd)
+
+def directorymaker(dirname=f'untitled{time.time():.0f}'):
+    try:
+        os.mkdir(dirname)
+    except FileExistsError:
+        pass

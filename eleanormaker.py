@@ -9,12 +9,6 @@ from astropy.io import fits
 import os, sys, time, argparse, eleanor
 from spinneret import *
 
-def directorymaker(dirname=f'untitled{time.time():.0f}'):
-    try:
-        os.mkdir(dirname)
-    except FileExistsError:
-        pass
-
 id_prepend = 'tic'
 file_append = 'eleanor'
 cadence = 1/24/2 # 30min
