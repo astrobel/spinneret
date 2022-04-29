@@ -33,50 +33,50 @@ directorymaker(dir_name)
 os.chdir(f'/data/shared_data/TESS/LightCurves/sector{opensec}')
 target_list = glob.glob('*.fits')
 
-failed = []
+# failed = []
 
 for filename in target_list:
 
-    try:
-        hdu = fits.open(filename)
+    # try:
+    hdu = fits.open(filename)
 
-        table = hdu[1].data
-        time = table['TIME']
-        flux = table['PDCSAP_FLUX']
+    table = hdu[1].data
+    time = table['TIME']
+    flux = table['PDCSAP_FLUX']
 
-        extra = hdu[0].header
-        teff = extra['TEFF']
-        logg = extra['LOGG']
-        tid = extra['TICID']
+    extra = hdu[0].header
+    teff = extra['TEFF']
+    logg = extra['LOGG']
+    tid = extra['TICID']
 
-        hdu.close()
+    hdu.close()
 
-        minfreq = 1/(time[-1] - time[0])
+    minfreq = 1/(time[-1] - time[0])
 
-        time, flux = nancleaner2d(time, flux)
-        time, flux = clip(time, flux, 3) #3 sigma clip
-        flux = lk.LightCurve(time=time, flux=flux).normalize().flux.value - 1
+    time, flux = nancleaner2d(time, flux)
+    time, flux = clip(time, flux, 3) #3 sigma clip
+    flux = lk.LightCurve(time=time, flux=flux).normalize().flux.value - 1
 
-        target = Spinner(time, flux, teff, logg)
+    target = Spinner(time, flux, teff, logg)
 
-        freq, ps = ts.LombScargle(time, flux).autopower(nyquist_factor=1, samples_per_peak=50, minimum_frequency=minfreq)
-        target.ls_one_term(freq, ps)
+    freq, ps = ts.LombScargle(time, flux).autopower(nyquist_factor=1, samples_per_peak=50, minimum_frequency=minfreq)
+    target.ls_one_term(freq, ps)
 
-        freq, ps = ts.LombScargle(time, flux, nterms=2).autopower(nyquist_factor=1, samples_per_peak=50, minimum_frequency=minfreq)
-        target.ls_two_term(freq, ps)
+    freq, ps = ts.LombScargle(time, flux, nterms=2).autopower(nyquist_factor=1, samples_per_peak=50, minimum_frequency=minfreq)
+    target.ls_two_term(freq, ps)
 
-        lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, cadence, width=16)
-        target.acf(lags, acf)
+    lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, cadence, width=16)
+    target.acf(lags, acf)
 
-        # fig1 = target.diagnostic_plot(heading=f'TIC {tid}')
-        # figsaver(fig1, f'TIC{tid}_{file_append}.png')
-        filemaker(target, tid, 0, filename=f'{id_prepend}{tid}_{file_append}.csv', filepath=f'./{dir_name}')
+    # fig1 = target.diagnostic_plot(heading=f'TIC {tid}')
+    # figsaver(fig1, f'TIC{tid}_{file_append}.png')
+    filemaker(target, tid, 0, filename=f'{id_prepend}{tid}_{file_append}.csv', filepath=f'./{dir_name}')
 
-        print(f'{tid} done')
-
-    except:
-        failed.append(tid)
+    print(f'{tid} done')
+    #
+    # except:
+    #     failed.append(tid)
 
 os.chdir('..')
 
-np.savetxt(failed, f's{opensec}failed.dat')
+# np.savetxt(failed, f's{opensec}failed.dat')
