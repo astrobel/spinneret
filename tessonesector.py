@@ -71,8 +71,7 @@ for filename in target_list:
         # fig1 = target.diagnostic_plot(heading=f'TIC {tid}')
         # figsaver(fig1, f'TIC{tid}_{file_append}.png')
 
-        filemaker(target, tid, 0, filename=f'{id_prepend}{tid}_{file_append}.csv', filepath=f'/home/icolman/data/spinneret/s{opensec}results')
-
+        filemaker(target, tid, 0, filename=f'{id_prepend}{tid}_{file_append}.csv', filepath=f'/home/icolman/data/spinneret/s{opensec}results')z
 
         print(f'{tid} done')
 
