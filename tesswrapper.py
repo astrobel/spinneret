@@ -67,7 +67,8 @@ flux = table['PDCSAP_FLUX']
 hdu.close()
 
 minfreq = 1/(time[-1] - time[0])
-freq = np.linspace(minfreq, 10000, 1000000)
+p_grid = np.linspace(0, time[-1], 100000)
+freq = 1/p_grid
 
 time, flux = nancleaner2d(time, flux)
 time, flux = clip(time, flux, 3) #3 sigma clip

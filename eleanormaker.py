@@ -40,7 +40,8 @@ for i in range(prime_sample.shape[0]):
         os.chdir('..')
 
         minfreq = 1/(time[-1] - time[0])
-        freq = np.linspace(minfreq, 10000, 1000000)
+        p_grid = np.linspace(0, time[-1], 100000)
+        freq = 1/p_grid
 
         time, flux = nancleaner2d(time, flux)
         time, flux = clip(time, flux, 3) #3 sigma clip
@@ -48,10 +49,10 @@ for i in range(prime_sample.shape[0]):
 
         target = Spinner(time, flux)
 
-        freq, ps = ts.LombScargle(time, flux).power(freq)
+        ps = ts.LombScargle(time, flux).power(freq)
         target.ls_one_term(freq, ps)
 
-        freq, ps = ts.LombScargle(time, flux, nterms=2).power(freq)
+        ps = ts.LombScargle(time, flux, nterms=2).power(freq)
         target.ls_two_term(freq, ps)
 
         lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, cadence, width=16)
