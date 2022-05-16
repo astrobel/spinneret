@@ -58,7 +58,7 @@ elif forestset == 'train':
     targets = pd.read_csv(f'S21{rot_for_file}_train.csv')
 elif forestset == 'validate':
     dir_name = 'validatedata'
-    targets = pd.read_csv(f'S21{rot_for_file}_test.csv')
+    targets = pd.read_csv(f'S21{rot_for_file}_validate.csv')
 
 directorymaker('dir_name')
 
