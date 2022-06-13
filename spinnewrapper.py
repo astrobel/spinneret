@@ -106,9 +106,9 @@ target_kep.ls_two_term(freq, ps)
 lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, cadence, width=16)
 target_kep.acf(lags, acf)
 
-fig1 = target_kep.diagnostic_plot(heading=f'KIC {tid}: Kepler Q9 // Santos 21 period = {p_r:.3f}d')
+# fig1 = target_kep.diagnostic_plot(heading=f'KIC {tid}: Kepler Q9 // Santos 21 period = {p_r:.3f}d')
 # figsaver(fig1, '/home/isy/Documents/Work/rotation/figs', f'KIC{k}_kep.png')
-figsaver(fig1, f'KIC{tid}_{file_append}.png')
+# figsaver(fig1, f'KIC{tid}_{file_append}.png')
 filemaker(target_kep, tid, p_r, filename=f'{id_prepend}{tid}_{file_append}.csv', filepath=f'./{dir_name}')
 
 print(f'{tid} done')
