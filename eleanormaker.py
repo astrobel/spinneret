@@ -20,7 +20,7 @@ directorymaker('figs')
 dir_name = 'kelt_eleanor'
 directorymaker(dir_name)
 
-prime_sample = np.loadtxt('prime_sectors.dat', delimiter=',')
+prime_sample = np.loadtxt('sectors.dat', delimiter=',')
 
 for i in range(prime_sample.shape[0]):
 
@@ -58,8 +58,8 @@ for i in range(prime_sample.shape[0]):
         lags_raw, acf_raw, lags, acf, _x, _y = simple_acf(time, flux, cadence, width=16)
         target.acf(lags, acf)
 
-        fig1 = target.diagnostic_plot(heading=f'TIC {tid} s{sec} // KELT period: {gtp:.2f}d')
-        figsaver(fig1, f'TIC{tid}_{file_append}.png')
+        # fig1 = target.diagnostic_plot(heading=f'TIC {tid} s{sec} // KELT period: {gtp:.2f}d')
+        # figsaver(fig1, f'TIC{tid}_{file_append}.png')
         filemaker(target, tid, gtp, filename=f'{id_prepend}{tid}_s{sec}_{file_append}.csv', filepath=f'./{dir_name}')
 
         print(f'{tid} done')
